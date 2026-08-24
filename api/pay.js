@@ -9,49 +9,49 @@ export default async function handler(req, res) {
   const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
 
   try {
-    // Action 1: Buat QRIS Pembayaran
+    // Action 1: Buat QRIS Dinamis JagoPay
     if (action === 'create') {
-      const params = new URLSearchParams({
-        api_key: JAGOPAY_KEY,
-        amount: '1000',
-        code: 'QRIS'
-      });
-
-      const response = await fetch('https://jagopay.my.id/api/deposit/create', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
-        },
-        body: params.toString()
-      });
-
+      const response = await fetch(`https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`);
       const text = await response.text();
+      
       let data;
       try {
         data = JSON.parse(text);
       } catch (e) {
         return res.status(500).json({ 
           status: false, 
-          message: `HTML dari JagoPay: ${text.replace(/<[^>]*>?/gm, '').substring(0, 120)}` 
+          message: `Respons JagoPay Error: ${text.substring(0, 100)}` 
         });
       }
 
-      return res.status(200).json(data);
+      if (data.status && data.data) {
+        return res.status(200).json({
+          status: true,
+          qr_link: data.data.qris_url,
+          qris_string: data.data.qris_string,
+          trx_id: Date.now().toString() // ID Transaksi lokal untuk tracking
+        });
+      }
+
+      return res.status(400).json({ status: false, message: data.message || 'Gagal generate QRIS' });
     }
 
-    // Action 2: Cek Status Pembayaran
+    // Action 2: Cek Mutasi QRIS / Status Pembayaran
     if (action === 'check') {
-      const response = await fetch(`https://jagopay.my.id/api/deposit/status?api_key=${JAGOPAY_KEY}&trx_id=${trx_id}`);
+      const response = await fetch(`https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`);
       const data = await response.json();
 
-      if (data.status === 'success' || data.status === 'paid' || data.data?.status === 'PAID') {
+      // Memeriksa apakah ada transaksi masuk dengan nominal 1000
+      const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
+
+      if (isPaid) {
+        // Kirim Magic Link Alight Motion ke email pembeli
         const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
         await fetch(magicUrl);
         return res.status(200).json({ paid: true });
       }
 
-      return res.status(200).json({ paid: false, raw: data });
+      return res.status(200).json({ paid: false });
     }
 
     return res.status(400).json({ status: false, message: 'Action tidak valid' });
