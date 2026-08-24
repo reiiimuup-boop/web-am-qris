@@ -25,61 +25,55 @@
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide">
         <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-        REII STORE OFFICIAL
+        REII STORE OFFICIAL (OTOMATIS)
       </div>
       <h1 class="text-2xl font-extrabold text-white tracking-tight">Alight Motion Premium</h1>
       <p class="text-xs text-purple-400 font-semibold">Harga Promo: Rp 1.000 / Akun</p>
     </div>
 
-    <!-- Step 1: Bayar QRIS & Dapatkan Kode -->
+    <!-- Step 1: Form Email -->
     <div id="step-1" class="space-y-4">
-      <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 text-center space-y-3">
-        <p class="text-xs font-semibold text-purple-300">1. Scan QRIS & Transfer Rp1.000</p>
-        
-        <div class="overflow-hidden rounded-xl border border-purple-500/30 shadow-lg inline-block">
-          <img id="qris-img" src="qriss.png" alt="QRIS Reii Store" class="w-full max-w-[260px] h-auto mx-auto block object-cover">
-        </div>
-
-        <p class="text-[11px] text-amber-400/90">Kirim bukti TF ke WA untuk dapatkan Kode Akses</p>
-        
-        <a href="https://wa.me/6283125677749?text=Halo%20Reii%20Store,%20saya%20sudah%20transfer%20Rp1.000%20untuk%20Alight%20Motion.%20Minta%20Kode%20Aksesnya." 
-           target="_blank" 
-           class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors">
-          <span>Chat WA Dapatkan Kode Akses</span>
-        </a>
+      <div>
+        <label for="email" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Alight Motion</label>
+        <input type="email" id="email" placeholder="nama@gmail.com" 
+          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors">
       </div>
 
-      <!-- Form Input Email + Kode Akses -->
-      <div class="space-y-3">
-        <div>
-          <label for="email" class="block text-xs font-semibold text-slate-300 mb-1">Email Alight Motion</label>
-          <input type="email" id="email" placeholder="nama@gmail.com" 
-            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500">
-        </div>
-
-        <div>
-          <label for="access-code" class="block text-xs font-semibold text-slate-300 mb-1">Kode Akses Pembayaran</label>
-          <input type="text" id="access-code" placeholder="Masukkan Kode dari Admin" 
-            class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 uppercase font-mono">
-        </div>
-      </div>
-
-      <button onclick="confirmPaymentAndCode()" id="btn-pay" 
+      <button onclick="createQris()" id="btn-create" 
         class="w-full bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-600/25">
-        Kirim Magic Link (Verifikasi Kode)
+        Lanjut ke Pembayaran QRIS
       </button>
     </div>
 
-    <!-- Step 2: Input Link Verifikasi -->
-    <div id="step-2" class="hidden space-y-4">
+    <!-- Step 2: Tampilan QRIS Dinamis & Auto Check Status -->
+    <div id="step-2" class="hidden space-y-4 text-center">
+      <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
+        <p class="text-xs font-semibold text-purple-300">Scan QRIS JagoPay Di Bawah Ini</p>
+        
+        <div class="overflow-hidden rounded-xl border border-purple-500/30 p-2 bg-white inline-block">
+          <img id="generated-qris" src="" alt="QRIS Pembayaran" class="w-56 h-56 mx-auto object-contain">
+        </div>
+
+        <div class="space-y-1">
+          <p id="pay-amount" class="text-sm font-bold text-emerald-400">Total: Rp 1.000</p>
+          <p class="text-[11px] text-amber-400/90 flex items-center justify-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            Mengecek pembayaran otomatis...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Input Link Verifikasi -->
+    <div id="step-3" class="hidden space-y-4">
       <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400 text-center">
-        Kode Valid! Magic Link telah dikirim. Cek Inbox/Spam email Anda.
+        Pembayaran Lunas! Magic Link telah dikirim ke email Anda.
       </div>
 
       <div>
-        <label for="verify-link" class="block text-xs font-semibold text-slate-300 mb-1.5">URL Link dari Email</label>
+        <label for="verify-link" class="block text-xs font-semibold text-slate-300 mb-1.5">Tempel Link Verifikasi dari Email</label>
         <input type="url" id="verify-link" placeholder="https://alight-creative.firebaseapp.com/__/auth/..." 
-          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500">
+          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-blue-500">
       </div>
 
       <button onclick="verifyLink()" id="btn-verif" 
@@ -88,23 +82,21 @@
       </button>
     </div>
 
-    <!-- Terminal Console -->
+    <!-- Terminal Output -->
     <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800/80 space-y-2">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
         <span class="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">System Console</span>
       </div>
       <div id="console-log" class="code-font text-xs text-purple-400 min-h-[70px] max-h-[100px] overflow-y-auto space-y-1 pt-1">
-        <p class="text-slate-500">[System Ready] Lakukan pembayaran QRIS dan minta kode akses ke WA...</p>
+        <p class="text-slate-500">[System Ready] Masukkan email untuk memulai...</p>
       </div>
     </div>
 
   </div>
 
   <script>
-    const BASE_API = 'https://api.kyzznekoo.my.id';
-    
-    // KODE AKSES YANG VALID (Bisa Anda ubah/tambah sendiri)
-    const VALID_CODES = ['REII1K', 'REIIOFFICIAL', 'AMPREM1K', 'LUNAS1K'];
+    let currentTrxId = null;
+    let checkInterval = null;
 
     function log(msg, type = 'info') {
       const consoleLog = document.getElementById('console-log');
@@ -120,55 +112,67 @@
       consoleLog.scrollTop = consoleLog.scrollHeight;
     }
 
-    async function confirmPaymentAndCode() {
+    async function createQris() {
       const email = document.getElementById('email').value.trim();
-      const codeInput = document.getElementById('access-code').value.trim().toUpperCase();
-
       if (!email) {
         log('Error: Masukkan email terlebih dahulu!', 'error');
         return;
       }
-      if (!codeInput) {
-        log('Error: Masukkan Kode Akses Pembayaran!', 'error');
-        return;
-      }
 
-      // CEK VALIDASI KODE
-      if (!VALID_CODES.includes(codeInput)) {
-        log('AKSES DITOLAK: Kode Pembayaran Salah/Belum Bayar!', 'error');
-        alert('Kode Akses Salah! Silahkan bayar Rp1.000 ke QRIS lalu minta kode ke WhatsApp Admin.');
-        return;
-      }
-
-      const btn = document.getElementById('btn-pay');
+      const btn = document.getElementById('btn-create');
       btn.disabled = true;
-      btn.innerText = 'Memverifikasi Kode...';
-      log(`Kode Valid! Mengirim Magic Link ke: ${email}...`);
+      btn.innerText = 'Membuat QRIS JagoPay...';
+      log('Meminta sistem membuat QRIS Dinamis...');
 
       try {
-        const targetUrl = `${BASE_API}/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
-        let response;
-        try {
-          response = await fetch(targetUrl);
-        } catch (corsErr) {
-          response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-        }
+        const res = await fetch('/api/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        if (data.status) {
-          log('BERHASIL: Magic Link telah dikirim!', 'info');
+        if (data.status || data.qr_link || data.data?.qr_link) {
+          const qrUrl = data.qr_link || data.data?.qr_link || data.qr_code;
+          currentTrxId = data.trx_id || data.data?.trx_id;
+
+          document.getElementById('generated-qris').src = qrUrl;
           document.getElementById('step-1').classList.add('hidden');
           document.getElementById('step-2').classList.remove('hidden');
+
+          log('QRIS Berhasil dibuat. Silakan bayar Rp1.000 via GoPay/DANA/M-Banking.', 'info');
+          startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.data?.message || data.message || 'Gagal mengirim magic link.'}`, 'error');
+          log(`Gagal membuat QRIS: ${data.message || 'Respons API JagoPay tidak valid.'}`, 'error');
         }
       } catch (err) {
         log(`Error: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Kirim Magic Link (Verifikasi Kode)';
+        btn.innerText = 'Lanjut ke Pembayaran QRIS';
       }
+    }
+
+    function startCheckingStatus(email) {
+      if (checkInterval) clearInterval(checkInterval);
+
+      // Mengecek status pembayaran setiap 5 detik secara otomatis
+      checkInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/check-status?trx_id=${currentTrxId}&email=${encodeURIComponent(email)}`);
+          const data = await res.json();
+
+          if (data.paid) {
+            clearInterval(checkInterval);
+            log('PEMBAYARAN DITERIMA! Magic Link dikirim ke email.', 'info');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.remove('hidden');
+          }
+        } catch (err) {
+          console.error('Check status error:', err);
+        }
+      }, 5000);
     }
 
     async function verifyLink() {
@@ -176,7 +180,7 @@
       const verifyUrl = document.getElementById('verify-link').value.trim();
 
       if (!verifyUrl) {
-        log('Error: Salin dan tempel URL dari email ke kolom di atas!', 'error');
+        log('Error: Salin dan tempel URL dari email ke kolom!', 'error');
         return;
       }
 
@@ -185,7 +189,7 @@
       btn.innerText = 'Memverifikasi...';
 
       try {
-        const targetUrl = `${BASE_API}/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
+        const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
         let response;
         try {
           response = await fetch(targetUrl);
@@ -197,7 +201,7 @@
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
-          alert('Selamat! Akun Alight Motion Anda telah aktif Premium.');
+          alert('Selamat! Akun Alight Motion Anda telah resmi menjadi Premium.');
         } else {
           log(`Gagal Verifikasi: ${data.data?.message || data.message || 'Token/Link tidak valid.'}`, 'error');
         }
