@@ -96,7 +96,6 @@
 
   <script>
     const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
-    const PROXY = 'https://corsproxy.io/?';
     let currentTrxId = null;
     let checkInterval = null;
 
@@ -127,20 +126,12 @@
       log('Meminta sistem membuat QRIS Dinamis...');
 
       try {
-        const apiUrl = `https://jagopay.my.id/api/deposit/create`;
-        const payload = {
-          api_key: JAGOPAY_KEY,
-          amount: 1000,
-          code: 'QRIS'
-        };
-
-        const res = await fetch(PROXY + encodeURIComponent(apiUrl), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
+        const targetUrl = `https://jagopay.my.id/api/deposit/create`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl + `?api_key=${JAGOPAY_KEY}&amount=1000&code=QRIS`)}`;
+        
+        const res = await fetch(proxyUrl);
+        const wrapper = await res.json();
+        const data = JSON.parse(wrapper.contents);
 
         if (data.status || data.qr_link || data.data?.qr_link) {
           const qrUrl = data.qr_link || data.data?.qr_link || data.qr_code;
@@ -168,17 +159,19 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const apiUrl = `https://jagopay.my.id/api/deposit/status?api_key=${JAGOPAY_KEY}&trx_id=${currentTrxId}`;
-          const res = await fetch(PROXY + encodeURIComponent(apiUrl));
-          const data = await res.json();
+          const targetUrl = `https://jagopay.my.id/api/deposit/status?api_key=${JAGOPAY_KEY}&trx_id=${currentTrxId}`;
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+          
+          const res = await fetch(proxyUrl);
+          const wrapper = await res.json();
+          const data = JSON.parse(wrapper.contents);
 
           if (data.status === 'success' || data.status === 'paid' || data.data?.status === 'PAID') {
             clearInterval(checkInterval);
             log('PEMBAYARAN DITERIMA! Mengirim Magic Link...', 'info');
             
-            // Trigger Magic Link v3
             const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
-            await fetch(PROXY + encodeURIComponent(magicUrl));
+            await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(magicUrl)}`);
 
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
@@ -204,8 +197,11 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const response = await fetch(PROXY + encodeURIComponent(targetUrl));
-        const data = await response.json();
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
+        const response = await fetch(proxyUrl);
+        const wrapper = await response.json();
+        const data = JSON.parse(wrapper.contents);
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
