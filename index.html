@@ -31,7 +31,7 @@
       <p class="text-xs text-purple-400 font-semibold">Harga Promo: Rp 1.000 / Akun</p>
     </div>
 
-    <!-- Step 1: Form Email -->
+    <!-- Step 1: Input Email -->
     <div id="step-1" class="space-y-4">
       <div>
         <label for="email" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Alight Motion</label>
@@ -45,7 +45,7 @@
       </button>
     </div>
 
-    <!-- Step 2: Tampilan QRIS Dinamis & Auto Check Status -->
+    <!-- Step 2: Tampilan QRIS -->
     <div id="step-2" class="hidden space-y-4 text-center">
       <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
         <p class="text-xs font-semibold text-purple-300">Scan QRIS JagoPay Di Bawah Ini</p>
@@ -55,7 +55,7 @@
         </div>
 
         <div class="space-y-1">
-          <p id="pay-amount" class="text-sm font-bold text-emerald-400">Total: Rp 1.000</p>
+          <p class="text-sm font-bold text-emerald-400">Total: Rp 1.000</p>
           <p class="text-[11px] text-amber-400/90 flex items-center justify-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
             Mengecek pembayaran otomatis...
@@ -95,6 +95,8 @@
   </div>
 
   <script>
+    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
+    const PROXY = 'https://corsproxy.io/?';
     let currentTrxId = null;
     let checkInterval = null;
 
@@ -125,10 +127,17 @@
       log('Meminta sistem membuat QRIS Dinamis...');
 
       try {
-        const res = await fetch('/api/create-payment', {
+        const apiUrl = `https://jagopay.my.id/api/deposit/create`;
+        const payload = {
+          api_key: JAGOPAY_KEY,
+          amount: 1000,
+          code: 'QRIS'
+        };
+
+        const res = await fetch(PROXY + encodeURIComponent(apiUrl), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -141,10 +150,10 @@
           document.getElementById('step-1').classList.add('hidden');
           document.getElementById('step-2').classList.remove('hidden');
 
-          log('QRIS Berhasil dibuat. Silakan bayar Rp1.000 via GoPay/DANA/M-Banking.', 'info');
+          log('QRIS Berhasil dibuat. Silakan bayar Rp1.000.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal membuat QRIS: ${data.message || 'Respons API JagoPay tidak valid.'}`, 'error');
+          log(`Gagal: ${data.message || 'Respons JagoPay tidak valid.'}`, 'error');
         }
       } catch (err) {
         log(`Error: ${err.message}`, 'error');
@@ -157,15 +166,20 @@
     function startCheckingStatus(email) {
       if (checkInterval) clearInterval(checkInterval);
 
-      // Mengecek status pembayaran setiap 5 detik secara otomatis
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/check-status?trx_id=${currentTrxId}&email=${encodeURIComponent(email)}`);
+          const apiUrl = `https://jagopay.my.id/api/deposit/status?api_key=${JAGOPAY_KEY}&trx_id=${currentTrxId}`;
+          const res = await fetch(PROXY + encodeURIComponent(apiUrl));
           const data = await res.json();
 
-          if (data.paid) {
+          if (data.status === 'success' || data.status === 'paid' || data.data?.status === 'PAID') {
             clearInterval(checkInterval);
-            log('PEMBAYARAN DITERIMA! Magic Link dikirim ke email.', 'info');
+            log('PEMBAYARAN DITERIMA! Mengirim Magic Link...', 'info');
+            
+            // Trigger Magic Link v3
+            const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
+            await fetch(PROXY + encodeURIComponent(magicUrl));
+
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
           }
@@ -190,13 +204,7 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        let response;
-        try {
-          response = await fetch(targetUrl);
-        } catch (corsErr) {
-          response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
-        }
-
+        const response = await fetch(PROXY + encodeURIComponent(targetUrl));
         const data = await response.json();
 
         if (data.status) {
