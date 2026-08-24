@@ -11,17 +11,19 @@ export default async function handler(req, res) {
   try {
     // Action 1: Buat QRIS Pembayaran
     if (action === 'create') {
+      const params = new URLSearchParams({
+        api_key: JAGOPAY_KEY,
+        amount: '1000',
+        code: 'QRIS'
+      });
+
       const response = await fetch('https://jagopay.my.id/api/deposit/create', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          api_key: JAGOPAY_KEY,
-          amount: 1000,
-          code: 'QRIS'
-        })
+        body: params.toString()
       });
 
       const text = await response.text();
@@ -29,7 +31,10 @@ export default async function handler(req, res) {
       try {
         data = JSON.parse(text);
       } catch (e) {
-        return res.status(500).json({ status: false, message: `Respons JagoPay bukan JSON: ${text.substring(0, 100)}` });
+        return res.status(500).json({ 
+          status: false, 
+          message: `HTML dari JagoPay: ${text.replace(/<[^>]*>?/gm, '').substring(0, 120)}` 
+        });
       }
 
       return res.status(200).json(data);
@@ -53,4 +58,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ status: false, message: `Server Error: ${err.message}` });
   }
-          }
+}
