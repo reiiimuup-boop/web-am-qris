@@ -8,36 +8,56 @@ export default async function handler(req, res) {
   const { action, email } = req.query;
   const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
 
-  // Menyamarkan request Vercel agar dianggap Browser HP oleh Cloudflare
-  const headers = {
-    'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36',
-    'Accept': 'application/json'
+  // Header penyamaran agar tidak dianggap bot oleh Cloudflare JagoPay
+  const customHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Cache-Control': 'no-cache'
   };
 
   try {
+    // Action 1: Buat QRIS Dinamis
     if (action === 'create') {
-      const response = await fetch(`https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`, { headers });
-      const text = await response.text();
+      const targetUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
+      const response = await fetch(targetUrl, { headers: customHeaders });
+      const rawText = await response.text();
 
       let data;
       try {
-        data = JSON.parse(text);
+        data = JSON.parse(rawText);
       } catch (e) {
-        return res.status(500).json({ status: false, message: 'Respon JagoPay bukan JSON' });
-      }
-
-      if (data.status && data.data?.qris_url) {
-        return res.status(200).json({
-          status: true,
-          qr_link: data.data.qris_url
+        return res.status(500).json({ 
+          status: false, 
+          message: 'IP Vercel diblokir JagoPay/Cloudflare. Silakan coba lagi beberapa saat.' 
         });
       }
-      return res.status(400).json({ status: false, message: data.message || 'Gagal membuat QRIS' });
+
+      if (data.status && (data.data?.qris_url || data.qris_url)) {
+        return res.status(200).json({
+          status: true,
+          qr_link: data.data?.qris_url || data.qris_url
+        });
+      }
+
+      return res.status(400).json({ 
+        status: false, 
+        message: data.message || 'Gagal membuat QRIS dari JagoPay.' 
+      });
     }
 
+    // Action 2: Cek Status Mutasi
     if (action === 'check') {
-      const response = await fetch(`https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`, { headers });
-      const data = await response.json();
+      const targetUrl = `https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`;
+      const response = await fetch(targetUrl, { headers: customHeaders });
+      const rawText = await response.text();
+
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        return res.status(200).json({ paid: false });
+      }
 
       const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
 
@@ -50,8 +70,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ paid: false });
     }
 
-    return res.status(400).json({ status: false, message: 'Action invalid' });
+    return res.status(400).json({ status: false, message: 'Action tidak valid' });
   } catch (err) {
-    return res.status(500).json({ status: false, message: err.message });
+    return res.status(500).json({ status: false, message: `Server Error: ${err.message}` });
   }
   }
