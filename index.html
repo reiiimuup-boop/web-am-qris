@@ -47,7 +47,7 @@
     <!-- Step 2: Tampilan QRIS -->
     <div id="step-2" class="hidden space-y-4 text-center">
       <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
-        <p class="text-xs font-semibold text-purple-300">Scan QRIS JagoPay Di Bawah Ini</p>
+        <p class="text-xs font-semibold text-purple-300">Scan QRIS Di Bawah Ini</p>
         
         <div class="overflow-hidden rounded-xl border border-purple-500/30 p-2 bg-white inline-block">
           <img id="generated-qris" src="" alt="QRIS Pembayaran" class="w-56 h-56 mx-auto object-contain">
@@ -118,7 +118,7 @@
 
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
-      btn.innerText = 'Membuat QRIS JagoPay...';
+      btn.innerText = 'Memproses...';
       log('Meminta sistem membuat QRIS Dinamis...');
 
       try {
@@ -133,7 +133,7 @@
           log('QRIS Berhasil dibuat. Silakan scan & bayar Rp1.000.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.message || 'Gagal memuat QRIS.'}`, 'error');
+          log(`Gagal: ${data.message}`, 'error');
         }
       } catch (err) {
         log(`Error: ${err.message}`, 'error');
