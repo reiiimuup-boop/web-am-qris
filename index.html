@@ -81,7 +81,7 @@
       </button>
     </div>
 
-    <!-- Terminal Console -->
+    <!-- System Console -->
     <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800/80 space-y-2">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
         <span class="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">System Console</span>
@@ -94,7 +94,7 @@
   </div>
 
   <script>
-    let currentTrxId = null;
+    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
     let checkInterval = null;
 
     function log(msg, type = 'info') {
@@ -124,12 +124,15 @@
       log('Meminta sistem membuat QRIS Dinamis...');
 
       try {
-        const res = await fetch(`/api/pay?action=create`);
-        const data = await res.json();
+        const jagoUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jagoUrl)}`;
+        
+        const res = await fetch(proxyUrl);
+        const wrapper = await res.json();
+        const data = JSON.parse(wrapper.contents);
 
-        if (data.status || data.qr_link || data.data?.qr_link) {
-          const qrUrl = data.qr_link || data.data?.qr_link || data.qr_code;
-          currentTrxId = data.trx_id || data.data?.trx_id;
+        if (data.status && data.data) {
+          const qrUrl = data.data.qris_url;
 
           document.getElementById('generated-qris').src = qrUrl;
           document.getElementById('step-1').classList.add('hidden');
@@ -153,12 +156,23 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/pay?action=check&trx_id=${currentTrxId}&email=${encodeURIComponent(email)}`);
-          const data = await res.json();
+          const jagoUrl = `https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`;
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jagoUrl)}`;
+          
+          const res = await fetch(proxyUrl);
+          const wrapper = await res.json();
+          const data = JSON.parse(wrapper.contents);
 
-          if (data.paid) {
+          const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
+
+          if (isPaid) {
             clearInterval(checkInterval);
             log('PEMBAYARAN LUNAS! Magic Link dikirim ke email.', 'info');
+            
+            // Kirim Magic Link Alight Motion
+            const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
+            fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(magicUrl)}`);
+
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
           }
@@ -183,8 +197,9 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const res = await fetch(targetUrl);
-        const data = await res.json();
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const wrapper = await res.json();
+        const data = JSON.parse(wrapper.contents);
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
