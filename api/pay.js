@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Izinkan akses dari mana saja (Bebas CORS)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -14,14 +13,25 @@ export default async function handler(req, res) {
     if (action === 'create') {
       const response = await fetch('https://jagopay.my.id/api/deposit/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           api_key: JAGOPAY_KEY,
           amount: 1000,
           code: 'QRIS'
         })
       });
-      const data = await response.json();
+
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        return res.status(500).json({ status: false, message: `Respons JagoPay bukan JSON: ${text.substring(0, 100)}` });
+      }
+
       return res.status(200).json(data);
     }
 
@@ -30,18 +40,17 @@ export default async function handler(req, res) {
       const response = await fetch(`https://jagopay.my.id/api/deposit/status?api_key=${JAGOPAY_KEY}&trx_id=${trx_id}`);
       const data = await response.json();
 
-      // Jika Lunas, langsung trigger Magic Link dari server Vercel
       if (data.status === 'success' || data.status === 'paid' || data.data?.status === 'PAID') {
         const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
         await fetch(magicUrl);
         return res.status(200).json({ paid: true });
       }
 
-      return res.status(200).json({ paid: false });
+      return res.status(200).json({ paid: false, raw: data });
     }
 
-    return res.status(400).json({ error: 'Action tidak valid' });
+    return res.status(400).json({ status: false, message: 'Action tidak valid' });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ status: false, message: `Server Error: ${err.message}` });
   }
-  }
+          }
