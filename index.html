@@ -25,7 +25,7 @@
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide">
         <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-        REII STORE  ( ORDER OTOMATIS)
+        REII STORE OFFICIAL (OTOMATIS)
       </div>
       <h1 class="text-2xl font-extrabold text-white tracking-tight">Alight Motion Premium</h1>
       <p class="text-xs text-purple-400 font-semibold">Harga Promo: Rp 1.000 / Akun</p>
@@ -91,8 +91,8 @@
 
   </div>
 
- <script>
-    const GATEWAY_URL = 'https://gateway-reii.vercel.app';
+  <script>
+    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
     let checkInterval = null;
 
     function log(msg, type = 'info') {
@@ -118,15 +118,18 @@
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
       btn.innerText = 'Memuat QRIS...';
-      log('Menghubungkan ke Backend Gateway untuk generate QRIS...');
+      log('Meminta QRIS ke server JagoPay...');
 
       try {
-        // Pemanggilan API disesuaikan dengan Vercel Serverless Function
-        const res = await fetch(`${GATEWAY_URL}/api?path=create-qris`);
-        const data = await res.json();
+        const targetUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
+        const res = await fetch(proxyUrl);
+        const proxyData = await res.json();
+        const data = JSON.parse(proxyData.contents);
 
-        if (data.status && data.qr_link) {
-          document.getElementById('generated-qris').src = data.qr_link;
+        if (data.status && data.data && data.data.qris_url) {
+          document.getElementById('generated-qris').src = data.data.qris_url;
           document.getElementById('step-1').classList.add('hidden');
           document.getElementById('step-2').classList.remove('hidden');
 
@@ -136,7 +139,7 @@
           log(`Gagal: ${data.message || 'Gagal memuat QRIS'}`, 'error');
         }
       } catch (err) {
-        log(`Error Gateway: ${err.message}`, 'error');
+        log(`Error: Gagal memproses data QRIS.`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Lanjut ke Pembayaran QRIS';
@@ -148,13 +151,24 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`${GATEWAY_URL}/api?path=check-status&email=${encodeURIComponent(email)}`);
-          const data = await res.json();
+          const targetUrl = `https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`;
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
-          if (data.paid) {
+          const res = await fetch(proxyUrl);
+          const proxyData = await res.json();
+          const data = JSON.parse(proxyData.contents);
+
+          const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
+
+          if (isPaid) {
             clearInterval(checkInterval);
-            log('PEMBAYARAN LUNAS! Magic Link dikirim ke email.', 'info');
+            log('PEMBAYARAN LUNAS! Meminta Magic Link...', 'info');
 
+            // Kirim magic link
+            const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
+            await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(magicUrl)}`);
+
+            log('Magic Link telah dikirim ke email.', 'info');
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
           }
@@ -179,8 +193,9 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const res = await fetch(targetUrl);
-        const data = await res.json();
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`);
+        const proxyData = await res.json();
+        const data = JSON.parse(proxyData.contents);
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
@@ -189,10 +204,12 @@
           log(`Gagal Verifikasi: ${data.data?.message || data.message || 'Link tidak valid.'}`, 'error');
         }
       } catch (err) {
-        log(`Error: ${err.message}`, 'error');
+        log(`Error: Gagal verifikasi link.`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Verifikasi & Aktifkan Premium';
       }
     }
- </script>
+  </script>
+</body>
+</html>
