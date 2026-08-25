@@ -21,6 +21,7 @@
 
   <div class="w-full max-w-md bg-slate-900/90 border border-purple-900/40 backdrop-blur-xl rounded-3xl p-6 shadow-2xl space-y-6">
     
+    <!-- Header -->
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide">
         <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
@@ -44,29 +45,26 @@
       </button>
     </div>
 
-    <!-- Step 2: Tampilan QRIS -->
+    <!-- Step 2: Display QRIS & Waiting Payment -->
     <div id="step-2" class="hidden space-y-4 text-center">
       <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
-        <p class="text-xs font-semibold text-purple-300">Scan QRIS Di Bawah Ini</p>
+        <p class="text-xs font-semibold text-purple-300">Scan & Bayar Pakai E-Wallet / Bank Anda</p>
         
         <div class="overflow-hidden rounded-xl border border-purple-500/30 p-2 bg-white inline-block">
-          <img id="generated-qris" src="" alt="QRIS Pembayaran" class="w-56 h-56 mx-auto object-contain">
+          <img id="generated-qris" src="" alt="QRIS Loading..." class="w-56 h-56 mx-auto object-contain">
         </div>
 
         <div class="space-y-1">
           <p class="text-sm font-bold text-emerald-400">Total: Rp 1.000</p>
-          <p class="text-[11px] text-amber-400/90 flex items-center justify-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            Mengecek pembayaran otomatis...
-          </p>
+          <p class="text-[11px] text-slate-400">Menunggu pembayaran... Sistem mengecek otomatis setiap 5 detik.</p>
         </div>
       </div>
     </div>
 
-    <!-- Step 3: Input Link Verifikasi -->
+    <!-- Step 3: Input Verifikasi Link -->
     <div id="step-3" class="hidden space-y-4">
       <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-400 text-center">
-        Pembayaran Lunas! Magic Link telah dikirim ke email Anda.
+        PEMBAYARAN LUNAS! Magic Link telah dikirim ke email Anda.
       </div>
 
       <div>
@@ -94,6 +92,7 @@
   </div>
 
   <script>
+    const GATEWAY_URL = 'https://gateway-reii.vercel.app';
     let checkInterval = null;
 
     function log(msg, type = 'info') {
@@ -118,11 +117,11 @@
 
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
-      btn.innerText = 'Memproses...';
-      log('Meminta sistem membuat QRIS Dinamis...');
+      btn.innerText = 'Memuat QRIS...';
+      log('Menghubungkan ke Backend Gateway untuk generate QRIS...');
 
       try {
-        const res = await fetch(`/api/pay?action=create`);
+        const res = await fetch(`${GATEWAY_URL}/api/create-qris`);
         const data = await res.json();
 
         if (data.status && data.qr_link) {
@@ -133,10 +132,10 @@
           log('QRIS Berhasil dibuat. Silakan scan & bayar Rp1.000.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.message}`, 'error');
+          log(`Gagal: ${data.message || 'Gagal memuat QRIS'}`, 'error');
         }
       } catch (err) {
-        log(`Error: ${err.message}`, 'error');
+        log(`Error Gateway: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Lanjut ke Pembayaran QRIS';
@@ -148,7 +147,7 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/pay?action=check&email=${encodeURIComponent(email)}`);
+          const res = await fetch(`${GATEWAY_URL}/api/check-status?email=${encodeURIComponent(email)}`);
           const data = await res.json();
 
           if (data.paid) {
