@@ -108,27 +108,6 @@
       consoleLog.scrollTop = consoleLog.scrollHeight;
     }
 
-    // Fungsi fetch aman dengan multi-gateway fallback
-    async function smartFetch(targetUrl) {
-      const proxies = [
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`
-      ];
-
-      for (const proxy of proxies) {
-        try {
-          const res = await fetch(proxy);
-          if (res.ok) {
-            const text = await res.text();
-            return JSON.parse(text);
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      throw new Error('Gagal terhubung ke JagoPay.');
-    }
-
     async function createQris() {
       const email = document.getElementById('email').value.trim();
       if (!email) {
@@ -139,11 +118,12 @@
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
       btn.innerText = 'Memuat QRIS...';
-      log('Menghubungkan ke JagoPay...');
+      log('Meminta QRIS ke server JagoPay...');
 
       try {
-        const targetUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
-        const data = await smartFetch(targetUrl);
+        // Menggunakan API internal tanpa CORS block
+        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://jagopay.my.id/api/qris?api_key=' + JAGOPAY_KEY + '&amount=1000')}`);
+        const data = await res.json();
 
         if (data.status && data.data && data.data.qris_url) {
           document.getElementById('generated-qris').src = data.data.qris_url;
@@ -153,10 +133,10 @@
           log('QRIS Berhasil dibuat. Silakan scan & bayar Rp1.000.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.message || 'QRIS tidak ditemukan'}`, 'error');
+          log(`Gagal: ${data.message || 'API Key / Data salah.'}`, 'error');
         }
       } catch (err) {
-        log(`Error: ${err.message}`, 'error');
+        log(`Error: Gagal memproses data QRIS.`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Lanjut ke Pembayaran QRIS';
@@ -168,8 +148,8 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const targetUrl = `https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`;
-          const data = await smartFetch(targetUrl);
+          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://jagopay.my.id/api/mutasi?api_key=' + JAGOPAY_KEY)}`);
+          const data = await res.json();
 
           const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
 
@@ -178,7 +158,7 @@
             log('PEMBAYARAN LUNAS! Mengirim Magic Link...', 'info');
 
             const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
-            await smartFetch(magicUrl);
+            await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(magicUrl)}`);
 
             log('Magic Link telah dikirim ke email.', 'info');
             document.getElementById('step-2').classList.add('hidden');
@@ -205,7 +185,8 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const data = await smartFetch(targetUrl);
+        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+        const data = await res.json();
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
