@@ -92,7 +92,6 @@
   </div>
 
   <script>
-    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
     let checkInterval = null;
 
     function log(msg, type = 'info') {
@@ -118,11 +117,10 @@
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
       btn.innerText = 'Memuat QRIS...';
-      log('Meminta QRIS ke server JagoPay...');
+      log('Meminta QRIS dari Serverless Handler...');
 
       try {
-        // Menggunakan API internal tanpa CORS block
-        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://jagopay.my.id/api/qris?api_key=' + JAGOPAY_KEY + '&amount=1000')}`);
+        const res = await fetch('/api/qris?action=create');
         const data = await res.json();
 
         if (data.status && data.data && data.data.qris_url) {
@@ -130,13 +128,13 @@
           document.getElementById('step-1').classList.add('hidden');
           document.getElementById('step-2').classList.remove('hidden');
 
-          log('QRIS Berhasil dibuat. Silakan scan & bayar Rp1.000.', 'info');
+          log('QRIS Berhasil dimuat! Silakan scan pembayaran.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.message || 'API Key / Data salah.'}`, 'error');
+          log(`Gagal: ${data.message || 'Gagal memproses QRIS'}`, 'error');
         }
       } catch (err) {
-        log(`Error: Gagal memproses data QRIS.`, 'error');
+        log(`Error internal serverless Vercel.`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Lanjut ke Pembayaran QRIS';
@@ -148,19 +146,12 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://jagopay.my.id/api/mutasi?api_key=' + JAGOPAY_KEY)}`);
+          const res = await fetch(`/api/qris?action=check&email=${encodeURIComponent(email)}`);
           const data = await res.json();
 
-          const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
-
-          if (isPaid) {
+          if (data.paid) {
             clearInterval(checkInterval);
-            log('PEMBAYARAN LUNAS! Mengirim Magic Link...', 'info');
-
-            const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
-            await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(magicUrl)}`);
-
-            log('Magic Link telah dikirim ke email.', 'info');
+            log('PEMBAYARAN TERDETEKSI! Magic Link dikirim ke email.', 'info');
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
           }
@@ -185,7 +176,7 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(targetUrl);
         const data = await res.json();
 
         if (data.status) {
