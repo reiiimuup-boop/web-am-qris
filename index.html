@@ -92,6 +92,7 @@
   </div>
 
   <script>
+    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
     let checkInterval = null;
 
     function log(msg, type = 'info') {
@@ -107,6 +108,27 @@
       consoleLog.scrollTop = consoleLog.scrollHeight;
     }
 
+    // Helper untuk mengambil data via Proxy anti-CORS
+    async function fetchRaw(url) {
+      const proxyList = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(url)}`
+      ];
+
+      for (const proxy of proxyList) {
+        try {
+          const res = await fetch(proxy);
+          if (res.ok) {
+            const text = await res.text();
+            return text;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      throw new Error('Jalur koneksi terganggu');
+    }
+
     async function createQris() {
       const email = document.getElementById('email').value.trim();
       if (!email) {
@@ -117,24 +139,45 @@
       const btn = document.getElementById('btn-create');
       btn.disabled = true;
       btn.innerText = 'Memuat QRIS...';
-      log('Meminta QRIS dari Serverless Handler...');
+      log('Menghubungkan ke JagoPay...');
 
       try {
-        const res = await fetch('/api/qris?action=create');
-        const data = await res.json();
+        const targetUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
+        const rawResponse = await fetchRaw(targetUrl);
 
-        if (data.status && data.data && data.data.qris_url) {
-          document.getElementById('generated-qris').src = data.data.qris_url;
+        let qrisImgUrl = '';
+
+        // Cek jika respons berupa string JSON
+        try {
+          const parsed = JSON.parse(rawResponse);
+          if (parsed.data && parsed.data.qris_url) {
+            qrisImgUrl = parsed.data.qris_url;
+          } else if (parsed.qris_url) {
+            qrisImgUrl = parsed.qris_url;
+          } else if (parsed.qr_string || parsed.qris) {
+            const qrStr = parsed.qr_string || parsed.qris;
+            qrisImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrStr)}`;
+          }
+        } catch (e) {
+          // Jika respons dari JagoPay bukan JSON melainkan string mentah kode QRIS (000201...)
+          if (rawResponse.startsWith('000201')) {
+            qrisImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rawResponse.trim())}`;
+          }
+        }
+
+        if (qrisImgUrl) {
+          document.getElementById('generated-qris').src = qrisImgUrl;
           document.getElementById('step-1').classList.add('hidden');
           document.getElementById('step-2').classList.remove('hidden');
 
-          log('QRIS Berhasil dimuat! Silakan scan pembayaran.', 'info');
+          log('QRIS Berhasil dibuat. Silakan scan & bayar Rp1.000.', 'info');
           startCheckingStatus(email);
         } else {
-          log(`Gagal: ${data.message || 'Gagal memproses QRIS'}`, 'error');
+          log('Gagal: Respon dari JagoPay tidak valid.', 'error');
         }
+
       } catch (err) {
-        log(`Error internal serverless Vercel.`, 'error');
+        log(`Error: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerText = 'Lanjut ke Pembayaran QRIS';
@@ -146,12 +189,20 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`/api/qris?action=check&email=${encodeURIComponent(email)}`);
-          const data = await res.json();
+          const targetUrl = `https://jagopay.my.id/api/mutasi?api_key=${JAGOPAY_KEY}`;
+          const rawResponse = await fetchRaw(targetUrl);
+          const data = JSON.parse(rawResponse);
 
-          if (data.paid) {
+          const isPaid = Array.isArray(data.data) && data.data.some(trx => parseInt(trx.amount) === 1000);
+
+          if (isPaid) {
             clearInterval(checkInterval);
-            log('PEMBAYARAN TERDETEKSI! Magic Link dikirim ke email.', 'info');
+            log('PEMBAYARAN LUNAS! Mengirim Magic Link...', 'info');
+
+            const magicUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
+            await fetchRaw(magicUrl);
+
+            log('Magic Link telah dikirim ke email.', 'info');
             document.getElementById('step-2').classList.add('hidden');
             document.getElementById('step-3').classList.remove('hidden');
           }
@@ -176,8 +227,8 @@
 
       try {
         const targetUrl = `https://api.kyzznekoo.my.id/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(verifyUrl)}`;
-        const res = await fetch(targetUrl);
-        const data = await res.json();
+        const rawResponse = await fetchRaw(targetUrl);
+        const data = JSON.parse(rawResponse);
 
         if (data.status) {
           log('SUKSES! Status Premium Alight Motion telah aktif.', 'info');
@@ -194,4 +245,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
