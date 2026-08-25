@@ -25,7 +25,7 @@
     <div class="text-center space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide">
         <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-        REII STORE OFFICIAL (OTOMATIS)
+        REII STORE  ( ORDER OTOMATIS)
       </div>
       <h1 class="text-2xl font-extrabold text-white tracking-tight">Alight Motion Premium</h1>
       <p class="text-xs text-purple-400 font-semibold">Harga Promo: Rp 1.000 / Akun</p>
@@ -91,7 +91,7 @@
 
   </div>
 
-  <script>
+ <script>
     const GATEWAY_URL = 'https://gateway-reii.vercel.app';
     let checkInterval = null;
 
@@ -121,7 +121,8 @@
       log('Menghubungkan ke Backend Gateway untuk generate QRIS...');
 
       try {
-        const res = await fetch(`${GATEWAY_URL}/api/create-qris`);
+        // Pemanggilan API disesuaikan dengan Vercel Serverless Function
+        const res = await fetch(`${GATEWAY_URL}/api?path=create-qris`);
         const data = await res.json();
 
         if (data.status && data.qr_link) {
@@ -147,7 +148,7 @@
 
       checkInterval = setInterval(async () => {
         try {
-          const res = await fetch(`${GATEWAY_URL}/api/check-status?email=${encodeURIComponent(email)}`);
+          const res = await fetch(`${GATEWAY_URL}/api?path=check-status&email=${encodeURIComponent(email)}`);
           const data = await res.json();
 
           if (data.paid) {
@@ -194,6 +195,4 @@
         btn.innerText = 'Verifikasi & Aktifkan Premium';
       }
     }
-  </script>
-</body>
-</html>
+ </script>
