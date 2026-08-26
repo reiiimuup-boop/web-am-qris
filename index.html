@@ -174,6 +174,7 @@
       const email = document.getElementById('email').value.trim();
       if (!email) {
         log('Error: Masukkan email terlebih dahulu!', 'error');
+        alert('Silakan masukkan email Anda terlebih dahulu.');
         return;
       }
 
@@ -181,7 +182,7 @@
 
       document.getElementById('step-1').classList.add('hidden');
       document.getElementById('step-2').classList.remove('hidden');
-      log('QRIS Reii Store (HD) ditampilkan. Scan / Simpan & upload bukti bayar.', 'info');
+      log('QRIS Reii Store (HD) ditampilkan.', 'info');
     }
 
     async function downloadQRIS() {
@@ -222,6 +223,44 @@
       document.getElementById('step-3').classList.remove('hidden');
     }
 
+    // Fungsi Pengunggah Foto Cadangan (Multi-Server)
+    async function uploadImage(file) {
+      // Opsi 1: Coba ImgBB API
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.data && data.data.url) {
+          return data.data.url;
+        }
+      } catch (e) {
+        console.warn('ImgBB upload failed, fallback to secondary server...');
+      }
+
+      // Opsi 2: Fallback ke Free API (freeimage.host / tmpfiles)
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.data && data.data.url) {
+          // Format direct link tmpfiles
+          return data.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        }
+      } catch (e) {
+        console.warn('Secondary storage upload failed.');
+      }
+
+      return null;
+    }
+
     async function submitProofAndSend(platform) {
       const email = document.getElementById('email').value.trim();
       const fileInput = document.getElementById('proof-file');
@@ -238,39 +277,29 @@
       btnTg.disabled = true;
       log('Mengunggah foto bukti transfer...', 'info');
 
-      try {
-        const formData = new FormData();
-        formData.append('image', fileInput.files[0]);
+      const file = fileInput.files[0];
+      const uploadedUrl = await uploadImage(file);
 
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (data.success) {
-          const imageUrl = data.data.url;
-          log('Bukti terkirim! Mengalihkan ke pesan Admin...', 'info');
-
-          const messageText = `Halo Admin Reii Store, saya sudah membayar Rp1.000 untuk Alight Motion Premium.%0A%0A*Email:* ${encodeURIComponent(email)}%0A*Bukti Transfer:* ${encodeURIComponent(imageUrl)}%0A%0AMohon kirimkan *Kode VIP Akses* saya. Terima kasih!`;
-
-          if (platform === 'wa') {
-            window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${messageText}`, '_blank');
-          } else if (platform === 'tg') {
-            window.open(`https://t.me/${USERNAME_TELEGRAM}?text=${messageText}`, '_blank');
-          }
-
-          showRedeemStep();
-        } else {
-          log('Gagal mengunggah foto ke storage.', 'error');
-        }
-      } catch (err) {
-        log(`Error Upload: ${err.message}`, 'error');
-      } finally {
-        btnWa.disabled = false;
-        btnTg.disabled = false;
+      let proofText = '';
+      if (uploadedUrl) {
+        log('Bukti berhasil diunggah! Mengalihkan ke Admin...', 'info');
+        proofText = `*Bukti Transfer:* ${encodeURIComponent(uploadedUrl)}`;
+      } else {
+        log('Upload server sibuk. Dialihkan untuk kirim foto manual ke chat...', 'error');
+        proofText = `*(Foto bukti transfer dilampirkan langsung di chat ini)*`;
       }
+
+      const messageText = `Halo Admin Reii Store, saya sudah membayar Rp1.000 untuk Alight Motion Premium.%0A%0A*Email:* ${encodeURIComponent(email)}%0A${proofText}%0A%0AMohon kirimkan *Kode VIP Akses* saya. Terima kasih!`;
+
+      if (platform === 'wa') {
+        window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${messageText}`, '_blank');
+      } else if (platform === 'tg') {
+        window.open(`https://t.me/${USERNAME_TELEGRAM}?text=${messageText}`, '_blank');
+      }
+
+      showRedeemStep();
+      btnWa.disabled = false;
+      btnTg.disabled = false;
     }
 
     async function redeemVipCode() {
@@ -308,5 +337,3 @@
       }
     }
   </script>
-</body>
-</html>
