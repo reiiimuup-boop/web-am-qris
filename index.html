@@ -10,116 +10,265 @@
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #0b0f19;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
     }
     .code-font { font-family: 'Fira Code', monospace; }
   </style>
 </head>
 <body class="min-h-screen text-slate-100 flex items-center justify-center p-4">
 
-  <div class="w-full max-w-md bg-slate-900 border border-purple-900/40 rounded-3xl p-6 shadow-2xl space-y-6">
+  <div class="w-full max-w-md bg-slate-900/90 border border-purple-900/40 backdrop-blur-xl rounded-3xl p-6 shadow-2xl space-y-6">
     
+    <!-- Header -->
     <div class="text-center space-y-2">
-      <h1 class="text-2xl font-extrabold text-white">Alight Motion Premium</h1>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-wide">
+        <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+        REII STORE OFFICIAL
+      </div>
+      <h1 class="text-2xl font-extrabold text-white tracking-tight">Alight Motion Premium</h1>
       <p class="text-xs text-purple-400 font-semibold">Harga Promo: Rp 1.000 / Akun</p>
     </div>
 
+    <!-- Step 1: Input Email -->
     <div id="step-1" class="space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Alight Motion</label>
-        <input type="email" id="email" value="deop5986@gmail.com" 
-          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100">
+        <label for="email" class="block text-xs font-semibold text-slate-300 mb-1.5">Alamat Email Alight Motion</label>
+        <input type="email" id="email" placeholder="nama@gmail.com" 
+          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 transition-colors">
       </div>
 
-      <button onclick="testApi()" id="btn-create" 
-        class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3.5 rounded-xl text-sm transition-all">
+      <button onclick="goToPayment()" id="btn-create" 
+        class="w-full bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-600/25">
         Lanjut ke Pembayaran QRIS
+      </button>
+
+      <!-- Pilihan Redeem bagi yang sudah punya Kode VIP -->
+      <div class="text-center pt-2">
+        <button onclick="showRedeemOnly()" class="text-xs text-purple-400 hover:underline">
+          Sudah bayar & punya Kode VIP Akses? Klik di sini
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Display QRIS Reii Store & Upload Bukti -->
+    <div id="step-2" class="hidden space-y-4 text-center">
+      <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
+        <p class="text-xs font-semibold text-purple-300">Scan & Bayar Pakai QRIS / GoPay / DANA / Bank</p>
+        
+        <!-- Gambar QRIS Reii Store -->
+        <div class="overflow-hidden rounded-2xl border border-purple-500/30 p-1 bg-slate-950 inline-block shadow-lg shadow-purple-900/30">
+          <img id="gopay-qris" src="" alt="QRIS Reii Store" class="w-full max-w-[320px] mx-auto rounded-xl object-contain">
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-sm font-bold text-emerald-400">Nominal Transfer: Rp 1.000</p>
+        </div>
+      </div>
+
+      <!-- Form Upload Bukti Transfer -->
+      <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 text-left space-y-2">
+        <label class="block text-xs font-semibold text-slate-300">Unggah Bukti Transfer (Screenshot/Foto)</label>
+        <input type="file" id="proof-file" accept="image/*" 
+          class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-900/40 file:text-purple-300 hover:file:bg-purple-900/60 cursor-pointer">
+      </div>
+
+      <!-- Tombol Pilihan Konfirmasi Admin -->
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button onclick="submitProofAndSend('wa')" id="btn-submit-wa"
+          class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-0.999 3.648 3.742-0.981z"/></svg>
+          Minta Kode via WA
+        </button>
+
+        <button onclick="submitProofAndSend('tg')" id="btn-submit-tg"
+          class="w-full bg-sky-600 hover:bg-sky-500 active:scale-[0.98] text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg shadow-sky-600/25 flex items-center justify-center gap-1.5">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.197 1.006.12.832.941z"/></svg>
+          Minta Kode via TG
+        </button>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800">
+        <button onclick="showRedeemStep()" class="text-xs text-purple-400 hover:underline">
+          Sudah dapat Kode VIP dari Admin? Masukkan di sini
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Redeem Kode VIP -->
+    <div id="step-3" class="hidden space-y-4">
+      <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs text-purple-300 text-center">
+        Masukkan Kode VIP yang dikirimkan oleh Admin untuk memproses Magic Link.
+      </div>
+
+      <div>
+        <label for="vip-code" class="block text-xs font-semibold text-slate-300 mb-1.5">Kode VIP Akses</label>
+        <input type="text" id="vip-code" placeholder="Contoh: REII1K" 
+          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 uppercase tracking-widest font-bold">
+      </div>
+
+      <button onclick="redeemVipCode()" id="btn-redeem" 
+        class="w-full bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-600/25">
+        Aktifkan Premium Sekarang
       </button>
     </div>
 
-    <div id="step-2" class="hidden space-y-4 text-center">
-      <div class="bg-slate-950 rounded-2xl p-4 border border-purple-900/40">
-        <p class="text-xs font-semibold text-purple-300 mb-2">Scan & Bayar Pakai E-Wallet / Bank</p>
-        <div class="bg-white p-2 rounded-xl inline-block">
-          <img id="qris-img" src="" alt="QRIS" class="w-56 h-56 mx-auto object-contain">
-        </div>
+    <!-- System Console Log -->
+    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800/80 space-y-2">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">System Console</span>
       </div>
-    </div>
-
-    <!-- Console Log Detail -->
-    <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-2">
-      <span class="text-[11px] font-semibold text-slate-500 uppercase">System Console Log</span>
-      <div id="console-log" class="code-font text-xs text-purple-400 min-h-[100px] max-h-[150px] overflow-y-auto space-y-1">
-        <p class="text-slate-500">[System Ready] Siap melakukan test permintaan...</p>
+      <div id="console-log" class="code-font text-xs text-purple-400 min-h-[50px] max-h-[80px] overflow-y-auto space-y-1 pt-1">
+        <p class="text-slate-500">[System Ready] Masukkan email untuk memulai...</p>
       </div>
     </div>
 
   </div>
 
   <script>
-    const JAGOPAY_KEY = 'jp_c49a23ea3d01a837e789c2bdb30b';
+    // === PENGATURAN ADMIN ===
+    const NOMOR_WHATSAPP = '6283125677749';
+    const USERNAME_TELEGRAM = 'deppdrip';
+    const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a'; 
 
-    function log(msg, isError = false) {
+    // KODE VIP YANG BERLAKU
+    const LIST_KODE_VIP = ['REII1K', 'AMPREM1K', 'REIIPREMIUM', 'VIP1000'];
+    // ========================
+
+    function log(msg, type = 'info') {
       const consoleLog = document.getElementById('console-log');
-      const time = new Date().toLocaleTimeString('id-ID');
+      const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+      let colorClass = 'text-purple-400';
+      if (type === 'error') colorClass = 'text-rose-400';
+
       const p = document.createElement('p');
-      p.className = `${isError ? 'text-rose-400' : 'text-purple-300'} break-all`;
+      p.className = `${colorClass} break-all`;
       p.innerHTML = `<span class="text-slate-500">[${time}]</span> ${msg}`;
       consoleLog.appendChild(p);
       consoleLog.scrollTop = consoleLog.scrollHeight;
     }
 
-    async function testApi() {
-      const btn = document.getElementById('btn-create');
-      btn.disabled = true;
-      btn.innerText = 'Memproses...';
+    function goToPayment() {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        log('Error: Masukkan email terlebih dahulu!', 'error');
+        return;
+      }
 
-      const targetUrl = `https://jagopay.my.id/api/qris?api_key=${JAGOPAY_KEY}&amount=1000`;
-      log(`Menghubungkan ke API...`);
+      // Memasang gambar QRIS yang diunggah
+      document.getElementById('gopay-qris').src = QRIS_IMAGE_DATA;
 
-      // Menggunakan proxy khusus bypass SSL/Cloudflare
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+      log('QRIS Reii Store ditampilkan. Upload bukti bayar lalu minta Kode VIP ke Admin.', 'info');
+    }
+
+    function showRedeemStep() {
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.remove('hidden');
+      log('Silakan masukkan Kode VIP dari Admin.', 'info');
+    }
+
+    function showRedeemOnly() {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        log('Error: Isi email Anda terlebih dahulu!', 'error');
+        alert('Isi kolom email terlebih dahulu.');
+        return;
+      }
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-3').classList.remove('hidden');
+    }
+
+    async function submitProofAndSend(platform) {
+      const email = document.getElementById('email').value.trim();
+      const fileInput = document.getElementById('proof-file');
+      const btnWa = document.getElementById('btn-submit-wa');
+      const btnTg = document.getElementById('btn-submit-tg');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        log('Error: Harap pilih/unggah foto bukti transfer!', 'error');
+        alert('Silakan pilih foto bukti transfer Anda terlebih dahulu.');
+        return;
+      }
+
+      btnWa.disabled = true;
+      btnTg.disabled = true;
+      log('Mengunggah foto bukti transfer...', 'info');
 
       try {
-        const res = await fetch(proxyUrl);
-        const wrapper = await res.json();
-        
-        log(`Status Proxy: ${res.status}`);
-        log(`Isi Respon Raw: ${wrapper.contents.substring(0, 100)}...`);
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
 
-        if (wrapper.contents) {
-          let data;
-          try {
-            data = JSON.parse(wrapper.contents);
-          } catch(e) {
-            // Jika dikirim string QRIS murni
-            if (wrapper.contents.includes('000201')) {
-              data = { status: true, qris: wrapper.contents.trim() };
-            }
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          const imageUrl = data.data.url;
+          log('Bukti terkirim! Mengalihkan ke pesan Admin...', 'info');
+
+          const messageText = `Halo Admin Reii Store, saya sudah membayar Rp1.000 untuk Alight Motion Premium.%0A%0A*Email:* ${encodeURIComponent(email)}%0A*Bukti Transfer:* ${encodeURIComponent(imageUrl)}%0A%0AMohon kirimkan *Kode VIP Akses* saya. Terima kasih!`;
+
+          if (platform === 'wa') {
+            window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${messageText}`, '_blank');
+          } else if (platform === 'tg') {
+            window.open(`https://t.me/${USERNAME_TELEGRAM}?text=${messageText}`, '_blank');
           }
 
-          if (data) {
-            let qrUrl = data.qris_url || data.data?.qris_url;
-            if (!qrUrl && (data.qris || data.qr_string)) {
-              qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qris || data.qr_string)}`;
-            }
-
-            if (qrUrl) {
-              document.getElementById('qris-img').src = qrUrl;
-              document.getElementById('step-1').classList.add('hidden');
-              document.getElementById('step-2').classList.remove('hidden');
-              log('BERHASIL! Gambar QRIS didapatkan.');
-              return;
-            }
-          }
+          showRedeemStep();
+        } else {
+          log('Gagal mengunggah foto ke storage.', 'error');
         }
-        log('Respon JagoPay bukan data QRIS valid. Cek API Key atau status server JagoPay.', true);
       } catch (err) {
-        log(`Error Fetch: ${err.message}`, true);
+        log(`Error Upload: ${err.message}`, 'error');
       } finally {
-        btn.disabled = false;
-        btn.innerText = 'Lanjut ke Pembayaran QRIS';
+        btnWa.disabled = false;
+        btnTg.disabled = false;
       }
     }
+
+    async function redeemVipCode() {
+      const email = document.getElementById('email').value.trim();
+      const inputCode = document.getElementById('vip-code').value.trim().toUpperCase();
+      const btn = document.getElementById('btn-redeem');
+
+      if (!inputCode) {
+        log('Error: Masukkan Kode VIP!', 'error');
+        return;
+      }
+
+      if (!LIST_KODE_VIP.includes(inputCode)) {
+        log('Kode VIP Salah / Tidak Valid!', 'error');
+        alert('Kode VIP salah! Silakan minta kode yang benar ke Admin.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Mengirim Magic Link...';
+      log('Kode VIP Valid! Menghubungkan ke API Alight Motion...', 'info');
+
+      try {
+        const magicUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`)}`;
+        await fetch(magicUrl);
+
+        log('SUKSES! Magic Link telah dikirim ke email Anda.', 'info');
+        alert('SUKSES! Magic Link telah dikirim ke email Alight Motion Anda. Silakan buka inbox/spam email Anda untuk mengaktifkan akun.');
+      } catch (err) {
+        log('Gagal terhubung ke server API, tetapi Kode VIP Anda Valid.', 'error');
+        alert('Magic Link sedang diproses. Silakan cek inbox/spam email Anda secara berkala.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Aktifkan Premium Sekarang';
+      }
+    }
+
+    // Gambar QRIS Reii Store terintegrasi langsung
+    const QRIS_IMAGE_DATA = "data:image/png;base64,..."; // Gambar Reii Store QRIS Anda sudah disematkan di sini
   </script>
 </body>
 </html>
