@@ -15,12 +15,6 @@
         radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
     }
     .code-font { font-family: 'Fira Code', monospace; }
-    
-    /* Agar gambar QRIS sangat tajam & tidak blur saat di-zoom */
-    .qris-hd {
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-    }
   </style>
 </head>
 <body class="min-h-screen text-slate-100 flex items-center justify-center p-4">
@@ -50,7 +44,6 @@
         Lanjut ke Pembayaran QRIS
       </button>
 
-      <!-- Pilihan Redeem bagi yang sudah punya Kode VIP -->
       <div class="text-center pt-2">
         <button onclick="showRedeemOnly()" class="text-xs text-purple-400 hover:underline">
           Sudah bayar & punya Kode VIP Akses? Klik di sini
@@ -58,31 +51,34 @@
       </div>
     </div>
 
-    <!-- Step 2: Display QRIS Reii Store & Upload Bukti -->
+    <!-- Step 2: Display QRIS HD Reii Store -->
     <div id="step-2" class="hidden space-y-4 text-center">
-      <div class="bg-slate-950/80 border border-purple-900/40 rounded-2xl p-4 space-y-3">
-        <p class="text-xs font-semibold text-purple-300">Scan & Bayar Pakai QRIS / GoPay / DANA / Bank</p>
+      <div class="bg-slate-950/90 border border-purple-900/50 rounded-2xl p-5 space-y-4">
         
-        <!-- Gambar QRIS Reii Store (Dapat Di-klik untuk Perbesar) -->
-        <div class="relative group cursor-pointer overflow-hidden rounded-2xl border border-purple-500/30 p-1 bg-slate-950 inline-block shadow-lg shadow-purple-900/30" onclick="openModal()">
-          <img id="gopay-qris" src="" alt="QRIS Reii Store" class="w-full max-w-[280px] mx-auto rounded-xl object-contain qris-hd transition-transform duration-200 group-hover:scale-105">
-          <div class="absolute inset-0 bg-purple-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-xl">
-            <span class="text-xs font-bold text-white bg-purple-600/90 px-3 py-1.5 rounded-lg shadow">🔍 Klik untuk Perbesar</span>
-          </div>
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-purple-300 tracking-wide uppercase">QRIS REII STORE OFFICIAL</p>
+          <p class="text-[11px] text-slate-400">Scan menggunakan GoPay / DANA / OVO / BCA / Semua Bank</p>
         </div>
 
-        <!-- Tombol Simpan QRIS -->
-        <div class="pt-1">
-          <button onclick="downloadQRIS()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-950/70 hover:bg-purple-900/90 text-purple-200 border border-purple-500/30 rounded-xl text-xs font-semibold transition-all hover:scale-105 active:scale-95 shadow">
+        <!-- Wadah QR Code HD -->
+        <div class="bg-white p-4 rounded-2xl inline-block shadow-2xl shadow-purple-900/40 border-4 border-purple-500/20">
+          <img id="gopay-qris" src="" alt="QRIS HD Reii Store" class="w-64 h-64 mx-auto object-contain rounded-lg">
+          <p class="text-[11px] font-extrabold text-slate-800 mt-2 tracking-wider">NAMA MERCHANT: REII STORE</p>
+        </div>
+
+        <!-- Tombol Unduh QRIS Jernih -->
+        <div>
+          <button onclick="downloadQRIS()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-semibold transition-all hover:scale-105 active:scale-95 shadow">
             <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
-            Simpan Gambar QRIS (HD)
+            Simpan Kode QR (HD Super Jernih)
           </button>
         </div>
 
-        <div class="space-y-1 pt-1">
-          <p class="text-sm font-bold text-emerald-400">Nominal Transfer: Rp 1.000</p>
+        <div class="pt-2 border-t border-slate-800">
+          <p class="text-xs text-slate-400">Total Nominal Pembayaran:</p>
+          <p class="text-lg font-black text-emerald-400">Rp 1.000</p>
         </div>
       </div>
 
@@ -145,26 +141,17 @@
 
   </div>
 
-  <!-- Modal Display QRIS HD Fullscreen -->
-  <div id="qris-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md hidden z-50 flex flex-col items-center justify-center p-4" onclick="closeModal()">
-    <div class="relative max-w-sm w-full bg-slate-900 border border-purple-500/40 p-3 rounded-2xl text-center space-y-3" onclick="event.stopPropagation()">
-      <div class="flex justify-between items-center px-1">
-        <span class="text-xs font-bold text-purple-300">Tampilan QRIS HD Reii Store</span>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
-      </div>
-      <img id="modal-img" src="" alt="QRIS Fullscreen" class="w-full rounded-xl object-contain shadow-2xl qris-hd">
-      <p class="text-[11px] text-slate-400">Tekan dan tahan gambar untuk menyimpan manual jika tombol unduh tidak merespon.</p>
-    </div>
-  </div>
-
   <script>
     // === PENGATURAN ADMIN ===
     const NOMOR_WHATSAPP = '6283125677749';
     const USERNAME_TELEGRAM = 'deppdrip';
     const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a'; 
 
-    // LINK GAMBAR QRIS DARI IMGBB
-    const LINK_GAMBAR_QRIS = 'https://i.ibb.co.com/6csK2tdY/qris.png'; 
+    // DATA STRING QRIS REII STORE
+    const QRIS_STRING_REII = '00020101021126610014COM.GO-JEK.WWW01189360091437986932920210G7986932920303UMI51440014ID.CO.QRIS.WWW0215ID10264940573790303UMI5204899953033605802ID5925Reii Storee, Digital & Kr6006ASAHAN61052127362070703A0163040030';
+
+    // LINK GENERATOR HD VECTOR
+    const LINK_GAMBAR_QRIS = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=15&data=${encodeURIComponent(QRIS_STRING_REII)}`;
 
     // KODE VIP YANG BERLAKU
     const LIST_KODE_VIP = ['REII1K', 'AMPREM1K', 'REIIPREMIUM', 'VIP1000'];
@@ -191,23 +178,14 @@
       }
 
       document.getElementById('gopay-qris').src = LINK_GAMBAR_QRIS;
-      document.getElementById('modal-img').src = LINK_GAMBAR_QRIS;
 
       document.getElementById('step-1').classList.add('hidden');
       document.getElementById('step-2').classList.remove('hidden');
-      log('QRIS Reii Store ditampilkan. Unduh/Scan QRIS dan upload bukti bayar.', 'info');
-    }
-
-    function openModal() {
-      document.getElementById('qris-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('qris-modal').classList.add('hidden');
+      log('QRIS Reii Store (HD) ditampilkan. Scan / Simpan & upload bukti bayar.', 'info');
     }
 
     async function downloadQRIS() {
-      log('Mengunduh gambar QRIS Reii Store...', 'info');
+      log('Mengunduh QRIS HD Reii Store...', 'info');
       try {
         const response = await fetch(LINK_GAMBAR_QRIS);
         const blob = await response.blob();
@@ -215,16 +193,15 @@
         
         const a = document.createElement('a');
         a.href = blobUrl;
-        a.download = 'QRIS_Reii_Store.png';
+        a.download = 'QRIS_HD_Reii_Store.png';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(blobUrl);
-        log('Gambar QRIS berhasil diunduh ke Galeri.', 'info');
+        log('QRIS HD berhasil diunduh.', 'info');
       } catch (e) {
-        // Fallback jika terjadi CORS restriction
         window.open(LINK_GAMBAR_QRIS, '_blank');
-        log('Membuka gambar QRIS di tab baru untuk disimpan.', 'info');
+        log('QRIS HD dibuka di tab baru.', 'info');
       }
     }
 
@@ -332,4 +309,4 @@
     }
   </script>
 </body>
-          </html>
+</html>
