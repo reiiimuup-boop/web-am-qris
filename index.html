@@ -51,13 +51,12 @@
       </div>
     </div>
 
-    <!-- Step 2: Display QRIS HD Reii Store -->
+    <!-- Step 2: Display QRIS -->
     <div id="step-2" class="hidden space-y-4 text-center">
       <div class="bg-slate-950/90 border border-purple-900/50 rounded-2xl p-5 space-y-4">
-        
         <div class="space-y-1">
           <p class="text-xs font-bold text-purple-300 tracking-wide uppercase">QRIS REII STORE OFFICIAL</p>
-          <p class="text-[11px] text-slate-400">Scan menggunakan GoPay / DANA / OVO / BCA / Semua Bank</p>
+          <p class="text-[11px] text-slate-400">Scan via GoPay / DANA / OVO / BCA / All Bank</p>
         </div>
 
         <div class="bg-white p-4 rounded-2xl inline-block shadow-2xl shadow-purple-900/40 border-4 border-purple-500/20">
@@ -65,71 +64,53 @@
           <p class="text-[11px] font-extrabold text-slate-800 mt-2 tracking-wider">NAMA MERCHANT: REII STORE</p>
         </div>
 
-        <div>
-          <button onclick="downloadQRIS()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-semibold transition-all hover:scale-105 active:scale-95 shadow">
-            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
-            Simpan Kode QR (HD Super Jernih)
-          </button>
-        </div>
-
         <div class="pt-2 border-t border-slate-800">
-          <p class="text-xs text-slate-400">Total Nominal Pembayaran:</p>
+          <p class="text-xs text-slate-400">Total Pembayaran:</p>
           <p class="text-lg font-black text-emerald-400">Rp 1.000</p>
         </div>
       </div>
 
       <!-- Form Upload Bukti Transfer -->
       <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 text-left space-y-2">
-        <label class="block text-xs font-semibold text-slate-300">Unggah Bukti Transfer (Screenshot/Foto)</label>
+        <label class="block text-xs font-semibold text-slate-300">Unggah Bukti Transfer (Screenshot)</label>
         <input type="file" id="proof-file" accept="image/*" 
           class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-900/40 file:text-purple-300 hover:file:bg-purple-900/60 cursor-pointer">
       </div>
 
-      <!-- Tombol Pilihan Konfirmasi Admin -->
       <div class="grid grid-cols-2 gap-3 pt-2">
         <button onclick="submitProofAndSend('wa')" id="btn-submit-wa"
-          class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-1.5">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-0.999 3.648 3.742-0.981z"/></svg>
+          class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg flex items-center justify-center gap-1.5">
           Minta Kode via WA
         </button>
 
         <button onclick="submitProofAndSend('tg')" id="btn-submit-tg"
-          class="w-full bg-sky-600 hover:bg-sky-500 active:scale-[0.98] text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg shadow-sky-600/25 flex items-center justify-center gap-1.5">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.536-.197 1.006.12.832.941z"/></svg>
+          class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-xl text-xs transition-all shadow-lg flex items-center justify-center gap-1.5">
           Minta Kode via TG
-        </button>
-      </div>
-
-      <div class="pt-2 border-t border-slate-800">
-        <button onclick="showRedeemStep()" class="text-xs text-purple-400 hover:underline">
-          Sudah dapat Kode VIP dari Admin? Masukkan di sini
         </button>
       </div>
     </div>
 
-    <!-- Step 3: Redeem Kode VIP & Verifikasi Token -->
+    <!-- Step 3: Input Kode VIP Sekali Pakai -->
     <div id="step-3" class="hidden space-y-4">
       <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs text-purple-300 text-center">
-        Masukkan Kode VIP yang dikirimkan Admin atau tempel Magic Link dari Email.
+        Masukkan Kode VIP Sekali Pakai yang Anda dapatkan dari Admin.
       </div>
 
       <div>
         <label for="vip-code" class="block text-xs font-semibold text-slate-300 mb-1.5">Kode VIP Akses</label>
-        <input type="text" id="vip-code" placeholder="Contoh: AMPREM1K" 
+        <input type="text" id="vip-code" placeholder="Contoh: REII-XXXX" 
           class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 uppercase tracking-widest font-bold">
       </div>
 
       <button onclick="redeemVipCode()" id="btn-redeem" 
         class="w-full bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-600/25">
-        Minta Magic Link Otomatis
+        Gunakan Kode & Kirim Magic Link
       </button>
 
-      <!-- TEMPEL LINK & VERIFIKASI (MENGGUNAKAN API KYZZNEKOO V3) -->
+      <!-- VERIFIKASI MAGIC LINK -->
       <div class="pt-3 border-t border-slate-800 space-y-2">
         <label for="pasted-magic-link" class="block text-xs font-semibold text-emerald-400">
-          🔗 Tempel (Paste) Magic Link dari Email di Sini:
+          🔗 Tempel (Paste) Magic Link dari Email:
         </label>
         <div class="flex gap-2">
           <input type="url" id="pasted-magic-link" placeholder="https://alight-creative.firebaseapp.com/..." 
@@ -138,33 +119,16 @@
             Verifikasi & Aktifkan
           </button>
         </div>
-        <p class="text-[10px] text-slate-400">Salin link verifikasi dari inbox/spam email Anda, lalu tempel di atas dan klik tombol Verifikasi.</p>
       </div>
-
-      <!-- Opsi Bantuan Jika Link Belum Masuk -->
-      <div id="resend-container" class="hidden space-y-3 pt-3 border-t border-slate-800 text-center">
-        <p class="text-xs text-slate-400">Email Magic Link belum masuk?</p>
-        
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="redeemVipCode()" id="btn-resend" class="w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold py-2.5 rounded-xl text-xs border border-purple-500/30">
-            🔄 Kirim Ulang Link
-          </button>
-
-          <button onclick="contactAdminForLink()" class="w-full bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 font-semibold py-2.5 rounded-xl text-xs border border-emerald-500/30">
-            💬 Minta Link ke Admin
-          </button>
-        </div>
-      </div>
-
     </div>
 
     <!-- System Console Log -->
     <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800/80 space-y-2">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-        <span class="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">System Console</span>
+        <span class="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">Console Monitor</span>
       </div>
       <div id="console-log" class="code-font text-xs text-purple-400 min-h-[50px] max-h-[80px] overflow-y-auto space-y-1 pt-1">
-        <p class="text-slate-500">[System Ready] Masukkan email untuk memulai...</p>
+        <p class="text-slate-500">[Ready] Siap memproses transaksi...</p>
       </div>
     </div>
 
@@ -173,13 +137,11 @@
   <script>
     const NOMOR_WHATSAPP = '6283125677749';
     const USERNAME_TELEGRAM = 'deppdrip';
-    const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a'; 
+    const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a';
     const BASE_API = 'https://api.kyzznekoo.my.id';
 
     const QRIS_STRING_REII = '00020101021126610014COM.GO-JEK.WWW01189360091437986932920210G7986932920303UMI51440014ID.CO.QRIS.WWW0215ID10264940573790303UMI5204899953033605802ID5925Reii Storee, Digital & Kr6006ASAHAN61052127362070703A0163040030';
     const LINK_GAMBAR_QRIS = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=15&data=${encodeURIComponent(QRIS_STRING_REII)}`;
-
-    const LIST_KODE_VIP = ['REII1K', 'AMMURAH', 'REIIPREMIUM', 'VIP1000'];
 
     function log(msg, type = 'info') {
       const consoleLog = document.getElementById('console-log');
@@ -198,48 +160,17 @@
     function goToPayment() {
       const email = document.getElementById('email').value.trim();
       if (!email) {
-        log('Error: Masukkan email terlebih dahulu!', 'error');
         alert('Silakan masukkan email Anda terlebih dahulu.');
         return;
       }
-
       document.getElementById('gopay-qris').src = LINK_GAMBAR_QRIS;
       document.getElementById('step-1').classList.add('hidden');
       document.getElementById('step-2').classList.remove('hidden');
-      log('QRIS Reii Store (HD) ditampilkan.', 'info');
-    }
-
-    async function downloadQRIS() {
-      log('Mengunduh QRIS HD Reii Store...', 'info');
-      try {
-        const response = await fetch(LINK_GAMBAR_QRIS);
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = 'QRIS_HD_Reii_Store.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-        log('QRIS HD berhasil diunduh.', 'info');
-      } catch (e) {
-        window.open(LINK_GAMBAR_QRIS, '_blank');
-        log('QRIS HD dibuka di tab baru.', 'info');
-      }
-    }
-
-    function showRedeemStep() {
-      document.getElementById('step-2').classList.add('hidden');
-      document.getElementById('step-3').classList.remove('hidden');
-      log('Silakan masukkan Kode VIP atau Tempel Magic Link.', 'info');
     }
 
     function showRedeemOnly() {
       const email = document.getElementById('email').value.trim();
       if (!email) {
-        log('Error: Isi email Anda terlebih dahulu!', 'error');
         alert('Isi kolom email terlebih dahulu.');
         return;
       }
@@ -251,84 +182,69 @@
       try {
         const formData = new FormData();
         formData.append('image', file);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-          method: 'POST',
-          body: formData
-        });
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success && data.data && data.data.url) return data.data.url;
       } catch (e) {}
-
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        if (data.status === 'success' && data.data && data.data.url) {
-          return data.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-        }
-      } catch (e) {}
-
       return null;
     }
 
+    // OTOMATIS MEMBUAT KODE UNIK SAAT PELANGGAN BAYAR & TEKAN KIRIM BUKTI
     async function submitProofAndSend(platform) {
       const email = document.getElementById('email').value.trim();
       const fileInput = document.getElementById('proof-file');
-      const btnWa = document.getElementById('btn-submit-wa');
-      const btnTg = document.getElementById('btn-submit-tg');
 
       if (!fileInput.files || fileInput.files.length === 0) {
-        log('Error: Harap pilih/unggah foto bukti transfer!', 'error');
-        alert('Silakan pilih foto bukti transfer Anda terlebih dahulu.');
+        alert('Silakan pilih foto bukti transfer Anda.');
         return;
       }
 
-      btnWa.disabled = true;
-      btnTg.disabled = true;
-      log('Mengunggah foto bukti transfer...', 'info');
+      log('Mengunggah bukti pembayaran...', 'info');
+      const uploadedUrl = await uploadImage(fileInput.files[0]);
+      let proofText = uploadedUrl ? `*Bukti Transfer:* ${encodeURIComponent(uploadedUrl)}` : `*(Bukti dilampirkan)*`;
+      
+      // MEMBUAT KODE VIP UNIK OTOMATIS (Misal: REII-8A92K)
+      const randomCode = 'REII-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      
+      // Simpan kode ini di memori browser sebagai kode yang valid dibuat
+      let validCodes = JSON.parse(localStorage.getItem('generated_vip_codes') || '[]');
+      validCodes.push(randomCode);
+      localStorage.setItem('generated_vip_codes', JSON.stringify(validCodes));
 
-      const file = fileInput.files[0];
-      const uploadedUrl = await uploadImage(file);
+      const messageText = `Halo Admin Reii Store, saya sudah membayar Rp1.000 untuk Alight Motion Premium.%0A%0A*Email:* ${encodeURIComponent(email)}%0A${proofText}%0A%0A*Kode Akses Saya:* ${randomCode}%0A%0AMohon konfirmasi kode VIP saya di atas. Terima kasih!`;
 
-      let proofText = uploadedUrl ? `*Bukti Transfer:* ${encodeURIComponent(uploadedUrl)}` : `*(Foto bukti transfer dilampirkan langsung di chat ini)*`;
-      const messageText = `Halo Admin Reii Store, saya sudah membayar Rp1.000 untuk Alight Motion Premium.%0A%0A*Email:* ${encodeURIComponent(email)}%0A${proofText}%0A%0AMohon kirimkan *Kode VIP Akses* saya. Terima kasih!`;
+      if (platform === 'wa') window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${messageText}`, '_blank');
+      else window.open(`https://t.me/${USERNAME_TELEGRAM}?text=${messageText}`, '_blank');
 
-      if (platform === 'wa') {
-        window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${messageText}`, '_blank');
-      } else if (platform === 'tg') {
-        window.open(`https://t.me/${USERNAME_TELEGRAM}?text=${messageText}`, '_blank');
-      }
+      // Masukkan kode otomatis ke input field agar pelanggan tidak perlu mengetik lagi
+      document.getElementById('vip-code').value = randomCode;
 
-      showRedeemStep();
-      btnWa.disabled = false;
-      btnTg.disabled = false;
+      document.getElementById('step-2').classList.add('hidden');
+      document.getElementById('step-3').classList.remove('hidden');
     }
 
-    // PENGIRIMAN MAGIC LINK PERSIS SESUAI SUMBER API FOTO 2
+    // PENGECEKAN KODE & PENGUNCIAN OTOMATIS KODE SEKALI PAKAI
     async function redeemVipCode() {
       const email = document.getElementById('email').value.trim();
       const inputCode = document.getElementById('vip-code').value.trim().toUpperCase();
       const btn = document.getElementById('btn-redeem');
 
       if (!inputCode) {
-        log('Error: Masukkan Kode VIP!', 'error');
         alert('Silakan masukkan Kode VIP terlebih dahulu.');
         return;
       }
 
-      if (!LIST_KODE_VIP.includes(inputCode)) {
-        log('Kode VIP Salah / Tidak Valid!', 'error');
-        alert('Kode VIP salah! Silakan minta kode yang benar ke Admin.');
+      // 1. Cek Apakah Kode Sudah Pernah Digunakan/Hangus
+      let usedCodes = JSON.parse(localStorage.getItem('used_vip_codes') || '[]');
+      if (usedCodes.includes(inputCode)) {
+        log(`DITOLAK: Kode ${inputCode} sudah hangus/terpakai!`, 'error');
+        alert('DITOLAK! Kode VIP ini sudah pernah digunakan dan tidak dapat dipakai lagi.');
         return;
       }
 
       btn.disabled = true;
       btn.innerText = 'Mengirim Magic Link...';
-      log(`Mengirim Magic Link ke email: ${email}...`, 'info');
+      log(`Proses klaim kode VIP: ${inputCode}...`, 'info');
 
       try {
         const targetUrl = `${BASE_API}/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
@@ -342,41 +258,38 @@
         const data = await response.json();
 
         if (data.status) {
-          log('BERHASIL: Magic Link dikirim! Cek Inbox/Spam email Anda.', 'success');
-          document.getElementById('resend-container').classList.remove('hidden');
-          alert('Magic Link berhasil dikirim ke email!\n\nSalin link dari email lalu tempelkan di kolom Verifikasi di bawah.');
+          // 2. Kunci & Hanguskan Kode VIP ini agar TIDAK BISA DIPAKAI LAGI
+          usedCodes.push(inputCode);
+          localStorage.setItem('used_vip_codes', JSON.stringify(usedCodes));
+
+          log('Magic Link dikirim ke email! Kode VIP resmi hangus.', 'success');
+          alert('BERHASIL! Magic Link sudah dikirim ke email Anda.\n\nKode VIP ini telah HANGUS dan tidak dapat digunakan kembali.');
         } else {
-          log(`Gagal: ${data.data?.message || data.message || 'Gagal mengirim magic link.'}`, 'error');
-          alert('Gagal mengirim email: ' + (data.message || 'Coba gunakan opsi Minta Link ke Admin.'));
+          log(`API Error: ${data.message || 'Gagal mengirim magic link'}`, 'error');
+          alert('Gagal mengirim link: ' + (data.message || 'Error API'));
         }
       } catch (err) {
-        log(`Error API: ${err.message}`, 'error');
+        log(`Error: ${err.message}`, 'error');
+        alert('Terjadi kesalahan koneksi.');
       } finally {
         btn.disabled = false;
-        btn.innerText = 'Minta Magic Link Otomatis';
+        btn.innerText = 'Gunakan Kode & Kirim Magic Link';
       }
     }
 
-    // PROSES VERIFIKASI DENGAN PARAMETER LINK SESUAI SUMBER FOTO 2
     async function verifyAndActivate() {
       const email = document.getElementById('email').value.trim();
       const magicLinkInput = document.getElementById('pasted-magic-link').value.trim();
       const btnVerify = document.getElementById('btn-verify');
       
-      if (!email) {
-        log('Error: Masukkan email terlebih dahulu!', 'error');
-        alert('Silakan isi kolom email terlebih dahulu.');
-        return;
-      }
-      if (!magicLinkInput) {
-        log('Error: Tempelkan link email terlebih dahulu!', 'error');
-        alert('Silakan salin dan tempel Magic Link dari email Anda.');
+      if (!email || !magicLinkInput) {
+        alert('Lengkapi email dan tempel Magic Link.');
         return;
       }
 
       btnVerify.disabled = true;
       btnVerify.innerText = 'Memverifikasi...';
-      log('Proses verifikasi dan aktivasi premium...', 'info');
+      log('Proses aktivasi akun premium...', 'info');
 
       try {
         const targetUrl = `${BASE_API}/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(magicLinkInput)}`;
@@ -390,11 +303,11 @@
         const data = await response.json();
 
         if (data.status) {
-          log('BERHASIL! Status Premium Alight Motion telah aktif.', 'success');
-          alert('Aktivasi Berhasil! Akun Alight Motion Anda telah menjadi Premium.');
+          log('BERHASIL! Akun Alight Motion Anda telah Premium.', 'success');
+          alert('Aktivasi Berhasil! Akun Anda sudah Premium.');
         } else {
-          log(`Gagal Verifikasi: ${data.data?.message || data.message || 'Link/Token kadaluarsa.'}`, 'error');
-          alert('Gagal Verifikasi: ' + (data.message || 'Link tidak valid atau sudah kadaluarsa.'));
+          log(`Gagal Verifikasi: ${data.message || 'Link tidak valid.'}`, 'error');
+          alert('Verifikasi Gagal: ' + (data.message || 'Link kadaluarsa.'));
         }
       } catch (err) {
         log(`Error Aktivasi: ${err.message}`, 'error');
@@ -403,12 +316,6 @@
         btnVerify.innerText = 'Verifikasi & Aktifkan';
       }
     }
-
-    function contactAdminForLink() {
-      const email = document.getElementById('email').value.trim();
-      const msg = `Halo Admin Reii Store, saya sudah memasukkan Kode VIP tapi Magic Link Alight Motion belum masuk ke email (${email}). Mohon bantuannya min. Terima kasih!`;
-      window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
   </script>
 </body>
-  </html>
+</html>
