@@ -60,13 +60,11 @@
           <p class="text-[11px] text-slate-400">Scan menggunakan GoPay / DANA / OVO / BCA / Semua Bank</p>
         </div>
 
-        <!-- Wadah QR Code HD -->
         <div class="bg-white p-4 rounded-2xl inline-block shadow-2xl shadow-purple-900/40 border-4 border-purple-500/20">
           <img id="gopay-qris" src="" alt="QRIS HD Reii Store" class="w-64 h-64 mx-auto object-contain rounded-lg">
           <p class="text-[11px] font-extrabold text-slate-800 mt-2 tracking-wider">NAMA MERCHANT: REII STORE</p>
         </div>
 
-        <!-- Tombol Unduh QRIS Jernih -->
         <div>
           <button onclick="downloadQRIS()" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-semibold transition-all hover:scale-105 active:scale-95 shadow">
             <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,10 +109,10 @@
       </div>
     </div>
 
-    <!-- Step 3: Redeem Kode VIP -->
+    <!-- Step 3: Redeem Kode VIP + Tempel Magic Link -->
     <div id="step-3" class="hidden space-y-4">
       <div class="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs text-purple-300 text-center">
-        Masukkan Kode VIP yang dikirimkan oleh Admin untuk memproses Magic Link.
+        Masukkan Kode VIP yang dikirimkan Admin atau tempel Magic Link dari Email.
       </div>
 
       <div>
@@ -125,8 +123,39 @@
 
       <button onclick="redeemVipCode()" id="btn-redeem" 
         class="w-full bg-purple-600 hover:bg-purple-500 active:scale-[0.98] text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-600/25">
-        Aktifkan Premium Sekarang
+        Minta Magic Link Otomatis
       </button>
+
+      <!-- BAGIAN BARU: Kolom Tempel Link dari Inbox/Spam Email -->
+      <div class="pt-3 border-t border-slate-800 space-y-2">
+        <label for="pasted-magic-link" class="block text-xs font-semibold text-emerald-400">
+          🔗 Tempel (Paste) Magic Link dari Email di Sini:
+        </label>
+        <div class="flex gap-2">
+          <input type="url" id="pasted-magic-link" placeholder="https://alightcreative.com/authtoken/..." 
+            class="w-full bg-slate-950/80 border border-emerald-900/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+          <button onclick="openPastedLink()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all whitespace-nowrap">
+            Buka Link
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-400">Salin link verifikasi dari inbox/spam email Anda, lalu tempel di atas dan klik tombol Buka Link.</p>
+      </div>
+
+      <!-- Opsi Bantuan Jika Link Belum Masuk -->
+      <div id="resend-container" class="hidden space-y-3 pt-3 border-t border-slate-800 text-center">
+        <p class="text-xs text-slate-400">Email Magic Link belum masuk?</p>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="redeemVipCode()" id="btn-resend" class="w-full bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold py-2.5 rounded-xl text-xs border border-purple-500/30">
+            🔄 Kirim Ulang Link
+          </button>
+
+          <button onclick="contactAdminForLink()" class="w-full bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 font-semibold py-2.5 rounded-xl text-xs border border-emerald-500/30">
+            💬 Minta Link ke Admin
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <!-- System Console Log -->
@@ -209,7 +238,7 @@
     function showRedeemStep() {
       document.getElementById('step-2').classList.add('hidden');
       document.getElementById('step-3').classList.remove('hidden');
-      log('Silakan masukkan Kode VIP dari Admin.', 'info');
+      log('Silakan masukkan Kode VIP atau Tempel Magic Link.', 'info');
     }
 
     function showRedeemOnly() {
@@ -223,9 +252,7 @@
       document.getElementById('step-3').classList.remove('hidden');
     }
 
-    // Fungsi Pengunggah Foto Cadangan (Multi-Server)
     async function uploadImage(file) {
-      // Opsi 1: Coba ImgBB API
       try {
         const formData = new FormData();
         formData.append('image', file);
@@ -238,10 +265,9 @@
           return data.data.url;
         }
       } catch (e) {
-        console.warn('ImgBB upload failed, fallback to secondary server...');
+        console.warn('ImgBB error...');
       }
 
-      // Opsi 2: Fallback ke Free API (freeimage.host / tmpfiles)
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -251,11 +277,10 @@
         });
         const data = await res.json();
         if (data.status === 'success' && data.data && data.data.url) {
-          // Format direct link tmpfiles
           return data.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
         }
       } catch (e) {
-        console.warn('Secondary storage upload failed.');
+        console.warn('Backup storage error.');
       }
 
       return null;
@@ -285,7 +310,7 @@
         log('Bukti berhasil diunggah! Mengalihkan ke Admin...', 'info');
         proofText = `*Bukti Transfer:* ${encodeURIComponent(uploadedUrl)}`;
       } else {
-        log('Upload server sibuk. Dialihkan untuk kirim foto manual ke chat...', 'error');
+        log('Upload server sibuk. Silakan kirim foto manual ke chat...', 'error');
         proofText = `*(Foto bukti transfer dilampirkan langsung di chat ini)*`;
       }
 
@@ -302,6 +327,23 @@
       btnTg.disabled = false;
     }
 
+    async function requestMagicLink(email) {
+      const endpoints = [
+        `https://corsproxy.io/?url=${encodeURIComponent(`https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`)}`,
+        `https://api.alightcreative.com/v1/auth/magic-link?email=${encodeURIComponent(email)}`
+      ];
+
+      for (let url of endpoints) {
+        try {
+          const res = await fetch(url, { method: 'GET' });
+          if (res.ok) return true;
+        } catch (e) {
+          console.warn('API endpoint failed...');
+        }
+      }
+      return false;
+    }
+
     async function redeemVipCode() {
       const email = document.getElementById('email').value.trim();
       const inputCode = document.getElementById('vip-code').value.trim().toUpperCase();
@@ -309,6 +351,7 @@
 
       if (!inputCode) {
         log('Error: Masukkan Kode VIP!', 'error');
+        alert('Silakan masukkan Kode VIP terlebih dahulu.');
         return;
       }
 
@@ -319,21 +362,45 @@
       }
 
       btn.disabled = true;
-      btn.innerText = 'Mengirim Magic Link...';
-      log('Kode VIP Valid! Menghubungkan ke API Alight Motion...', 'info');
+      btn.innerText = 'Memproses Magic Link...';
+      log('Kode VIP Valid! Mengirim Magic Link...', 'info');
 
-      try {
-        const magicUrl = `https://corsproxy.io/?url=${encodeURIComponent(`https://api.kyzznekoo.my.id/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`)}`;
-        await fetch(magicUrl);
+      await requestMagicLink(email);
 
-        log('SUKSES! Magic Link telah dikirim ke email Anda.', 'info');
-        alert('SUKSES! Magic Link telah dikirim ke email Alight Motion Anda. Silakan buka inbox/spam email Anda untuk mengaktifkan akun.');
-      } catch (err) {
-        log('Gagal terhubung ke server API, tetapi Kode VIP Anda Valid.', 'error');
-        alert('Magic Link sedang diproses. Silakan cek inbox/spam email Anda secara berkala.');
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Aktifkan Premium Sekarang';
+      log('Proses selesai. Cek inbox/spam atau paste link di bawah.', 'info');
+      document.getElementById('resend-container').classList.remove('hidden');
+
+      alert('Permintaan Magic Link telah diproses.\n\nJika link masuk ke email/spam, silakan salin lalu tempelkan link tersebut pada kolom yang disediakan di bawah.');
+      
+      btn.disabled = false;
+      btn.innerText = 'Minta Magic Link Otomatis';
+    }
+
+    // FUNGSI BARU: Membuka Magic Link yang Ditempel
+    function openPastedLink() {
+      const magicLinkInput = document.getElementById('pasted-magic-link').value.trim();
+      
+      if (!magicLinkInput) {
+        log('Error: Tempelkan link email terlebih dahulu!', 'error');
+        alert('Silakan salin dan tempel (paste) Magic Link dari email Anda terlebih dahulu.');
+        return;
       }
+
+      if (!magicLinkInput.startsWith('http://') && !magicLinkInput.startsWith('https://')) {
+        log('Error: Format link tidak valid!', 'error');
+        alert('Link yang Anda tempel tidak valid. Pastikan diawali dengan http:// atau https://');
+        return;
+      }
+
+      log('Membuka Magic Link Alight Motion...', 'info');
+      window.open(magicLinkInput, '_blank');
+    }
+
+    function contactAdminForLink() {
+      const email = document.getElementById('email').value.trim();
+      const msg = `Halo Admin Reii Store, saya sudah memasukkan Kode VIP tapi Magic Link Alight Motion belum masuk ke email (${email}). Mohon bantuannya min. Terima kasih!`;
+      window.open(`https://wa.me/${NOMOR_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
     }
   </script>
+</body>
+</html>
