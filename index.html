@@ -59,7 +59,7 @@
         
         <!-- Gambar QRIS Reii Store -->
         <div class="overflow-hidden rounded-2xl border border-purple-500/30 p-1 bg-slate-950 inline-block shadow-lg shadow-purple-900/30">
-          <img id="gopay-qris" src="" alt="QRIS Reii Store" class="w-full max-w-[320px] mx-auto rounded-xl object-contain">
+          <img id="gopay-qris" src="" alt="QRIS Reii Store" class="w-full max-w-[300px] mx-auto rounded-xl object-contain">
         </div>
 
         <div class="space-y-1">
@@ -132,6 +132,9 @@
     const USERNAME_TELEGRAM = 'deppdrip';
     const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a'; 
 
+    // LINK GAMBAR QRIS DARI IMGBB ANDA (SUDAH DISESUAIKAN)
+    const LINK_GAMBAR_QRIS = 'https://i.ibb.co.com/6csK2tdY/qris.png'; 
+
     // KODE VIP YANG BERLAKU
     const LIST_KODE_VIP = ['REII1K', 'AMPREM1K', 'REIIPREMIUM', 'VIP1000'];
     // ========================
@@ -156,8 +159,7 @@
         return;
       }
 
-      // Memasang gambar QRIS yang diunggah
-      document.getElementById('gopay-qris').src = QRIS_IMAGE_DATA;
+      document.getElementById('gopay-qris').src = LINK_GAMBAR_QRIS;
 
       document.getElementById('step-1').classList.add('hidden');
       document.getElementById('step-2').classList.remove('hidden');
@@ -266,9 +268,6 @@
         btn.innerText = 'Aktifkan Premium Sekarang';
       }
     }
-
-    // Gambar QRIS Reii Store terintegrasi langsung
-    const QRIS_IMAGE_DATA = "data:image/png;base64,..."; // Gambar Reii Store QRIS Anda sudah disematkan di sini
   </script>
 </body>
-</html>
+  </html>
