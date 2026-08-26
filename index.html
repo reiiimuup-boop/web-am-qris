@@ -126,7 +126,7 @@
         Minta Magic Link Otomatis
       </button>
 
-      <!-- BAGIAN TEMPEL LINK & VERIFIKASI -->
+      <!-- TEMPEL LINK & VERIFIKASI (MENGGUNAKAN API KYZZNEKOO V3) -->
       <div class="pt-3 border-t border-slate-800 space-y-2">
         <label for="pasted-magic-link" class="block text-xs font-semibold text-emerald-400">
           🔗 Tempel (Paste) Magic Link dari Email di Sini:
@@ -174,6 +174,7 @@
     const NOMOR_WHATSAPP = '6283125677749';
     const USERNAME_TELEGRAM = 'deppdrip';
     const IMGBB_API_KEY = '3c0a46979ce4edb2bbdd2b347b2ca46a'; 
+    const BASE_API = 'https://api.kyzznekoo.my.id';
 
     const QRIS_STRING_REII = '00020101021126610014COM.GO-JEK.WWW01189360091437986932920210G7986932920303UMI51440014ID.CO.QRIS.WWW0215ID10264940573790303UMI5204899953033605802ID5925Reii Storee, Digital & Kr6006ASAHAN61052127362070703A0163040030';
     const LINK_GAMBAR_QRIS = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=15&data=${encodeURIComponent(QRIS_STRING_REII)}`;
@@ -307,23 +308,7 @@
       btnTg.disabled = false;
     }
 
-    // BACKEND RELAY UTAMA UNTUK MENGIRIM MAGIC LINK TANPA TERBLOKIR CORS
-    async function requestMagicLink(email) {
-      const proxies = [
-        `https://reii-project-v1.vercel.app/api/send-link?email=${encodeURIComponent(email)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://ac-auth-api.alightcreative.com/v1/sendMagicLink?email=${email}`)}`,
-        `https://corsproxy.io/?${encodeURIComponent(`https://ac-auth-api.alightcreative.com/v1/sendMagicLink?email=${email}`)}`
-      ];
-
-      for (let url of proxies) {
-        try {
-          const res = await fetch(url, { method: 'GET' });
-          if (res.ok) return true;
-        } catch (e) {}
-      }
-      return true;
-    }
-
+    // PENGIRIMAN MAGIC LINK PERSIS SESUAI SUMBER API FOTO 2
     async function redeemVipCode() {
       const email = document.getElementById('email').value.trim();
       const inputCode = document.getElementById('vip-code').value.trim().toUpperCase();
@@ -343,38 +328,76 @@
 
       btn.disabled = true;
       btn.innerText = 'Mengirim Magic Link...';
-      log('Kode VIP Valid! Menghubungkan ke Server Alight Creative...', 'info');
+      log(`Mengirim Magic Link ke email: ${email}...`, 'info');
 
-      await requestMagicLink(email);
+      try {
+        const targetUrl = `${BASE_API}/api/alightmotion/v3/magic-link?email=${encodeURIComponent(email)}`;
+        let response;
+        try {
+          response = await fetch(targetUrl);
+        } catch (corsErr) {
+          response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        }
 
-      log('Magic Link BERHASIL dikirim! Cek Inbox & Folder SPAM Email Anda.', 'success');
-      document.getElementById('resend-container').classList.remove('hidden');
+        const data = await response.json();
 
-      alert('Magic Link telah berhasil dikirim!\n\nSilakan periksa INBOX dan folder SPAM pada email Anda. Salin linknya lalu tempelkan pada kolom di bawah.');
-      
-      btn.disabled = false;
-      btn.innerText = 'Minta Magic Link Otomatis';
+        if (data.status) {
+          log('BERHASIL: Magic Link dikirim! Cek Inbox/Spam email Anda.', 'success');
+          document.getElementById('resend-container').classList.remove('hidden');
+          alert('Magic Link berhasil dikirim ke email!\n\nSalin link dari email lalu tempelkan di kolom Verifikasi di bawah.');
+        } else {
+          log(`Gagal: ${data.data?.message || data.message || 'Gagal mengirim magic link.'}`, 'error');
+          alert('Gagal mengirim email: ' + (data.message || 'Coba gunakan opsi Minta Link ke Admin.'));
+        }
+      } catch (err) {
+        log(`Error API: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Minta Magic Link Otomatis';
+      }
     }
 
+    // PROSES VERIFIKASI DENGAN PARAMETER LINK SESUAI SUMBER FOTO 2
     async function verifyAndActivate() {
+      const email = document.getElementById('email').value.trim();
       const magicLinkInput = document.getElementById('pasted-magic-link').value.trim();
       const btnVerify = document.getElementById('btn-verify');
       
+      if (!email) {
+        log('Error: Masukkan email terlebih dahulu!', 'error');
+        alert('Silakan isi kolom email terlebih dahulu.');
+        return;
+      }
       if (!magicLinkInput) {
         log('Error: Tempelkan link email terlebih dahulu!', 'error');
-        alert('Silakan salin dan tempel (paste) Magic Link dari email Anda terlebih dahulu.');
+        alert('Silakan salin dan tempel Magic Link dari email Anda.');
         return;
       }
 
       btnVerify.disabled = true;
-      btnVerify.innerText = 'Verifikasi...';
-      log('Memproses aktivasi token Alight Motion...', 'info');
+      btnVerify.innerText = 'Memverifikasi...';
+      log('Proses verifikasi dan aktivasi premium...', 'info');
 
       try {
-        window.location.href = magicLinkInput;
-        log('Aktivasi diproses! Membuka Alight Motion...', 'success');
+        const targetUrl = `${BASE_API}/api/alightmotion/v3/applyPremium?email=${encodeURIComponent(email)}&link=${encodeURIComponent(magicLinkInput)}`;
+        let response;
+        try {
+          response = await fetch(targetUrl);
+        } catch (corsErr) {
+          response = await fetch(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status) {
+          log('BERHASIL! Status Premium Alight Motion telah aktif.', 'success');
+          alert('Aktivasi Berhasil! Akun Alight Motion Anda telah menjadi Premium.');
+        } else {
+          log(`Gagal Verifikasi: ${data.data?.message || data.message || 'Link/Token kadaluarsa.'}`, 'error');
+          alert('Gagal Verifikasi: ' + (data.message || 'Link tidak valid atau sudah kadaluarsa.'));
+        }
       } catch (err) {
-        window.open(magicLinkInput, '_blank');
+        log(`Error Aktivasi: ${err.message}`, 'error');
       } finally {
         btnVerify.disabled = false;
         btnVerify.innerText = 'Verifikasi & Aktifkan';
@@ -388,4 +411,4 @@
     }
   </script>
 </body>
-        </html>
+  </html>
